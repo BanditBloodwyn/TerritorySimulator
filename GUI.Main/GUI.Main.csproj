@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4497B294-1A5C-4275-9DA4-D91849051C08}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GUI.Main</RootNamespace>
+    <AssemblyName>GUI.Main</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainWindow\MainWindow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MainWindow\MainWindow.Designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SidePanel\SidePanelGUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SidePanel\SidePanelGUI.Designer.cs">
+      <DependentUpon>SidePanelGUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WorldPanel\WorldPanelGUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WorldPanel\WorldPanelGUI.Designer.cs">
+      <DependentUpon>WorldPanelGUI.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MainWindow\MainWindow.resx">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SidePanel\SidePanelGUI.resx">
+      <DependentUpon>SidePanelGUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WorldPanel\WorldPanelGUI.resx">
+      <DependentUpon>WorldPanelGUI.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GUI.Layers\GUI.Layers.csproj">
+      <Project>{08157f54-54f3-4f94-8989-05bc3f481b82}</Project>
+      <Name>GUI.Layers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GUI.WorldTools\GUI.WorldTools.csproj">
+      <Project>{fe85dddf-c040-4bf1-bb4a-d35c62aad226}</Project>
+      <Name>GUI.WorldTools</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Rendering.Core\Rendering.Core.csproj">
+      <Project>{22fda43a-58cf-4caa-884a-afcc345eb9a3}</Project>
+      <Name>Rendering.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

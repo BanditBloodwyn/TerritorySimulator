@@ -19,6 +19,7 @@ namespace TerritorySimulator.Core.Start
             mainWindow.Dock = DockStyle.Fill;
 
             MainForm mainForm = new MainForm();
+            mainForm.Text += " - v" + Application.ProductVersion;
             mainForm.Controls.Add(mainWindow);
 
             Application.Run(mainForm);

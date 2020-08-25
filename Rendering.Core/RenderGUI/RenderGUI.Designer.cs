@@ -28,10 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            this.pnlGL = new System.Windows.Forms.Panel();
+            this.SuspendLayout();
+            // 
+            // pnlGL
+            // 
+            this.pnlGL.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlGL.Location = new System.Drawing.Point(0, 0);
+            this.pnlGL.Name = "pnlGL";
+            this.pnlGL.Size = new System.Drawing.Size(630, 466);
+            this.pnlGL.TabIndex = 0;
+            // 
+            // RenderGUI
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pnlGL);
+            this.Name = "RenderGUI";
+            this.Size = new System.Drawing.Size(630, 466);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.Panel pnlGL;
     }
 }

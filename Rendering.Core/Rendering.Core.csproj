@@ -50,6 +50,7 @@
     <Compile Include="RenderGUI\RenderGUI.Designer.cs">
       <DependentUpon>RenderGUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="Shaders\Shader.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenTK">
@@ -58,6 +59,15 @@
     <PackageReference Include="OpenTK.GLControl">
       <Version>3.1.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RenderGUI\RenderGUI.resx">
+      <DependentUpon>RenderGUI.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\GLSL\Fragment.frag" />
+    <None Include="Shaders\GLSL\Vertex.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

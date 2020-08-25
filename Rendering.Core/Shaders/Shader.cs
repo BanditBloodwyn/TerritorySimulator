@@ -8,7 +8,7 @@ namespace Rendering.Core.Shaders
 {
     public class Shader : IDisposable
     {
-        private int Handle;
+        public int Handle;
         private bool disposedValue = false;
 
         public Shader(string vertexPath, string fragmentPath)

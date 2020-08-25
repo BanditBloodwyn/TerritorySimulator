@@ -15,6 +15,11 @@ namespace Rendering.Core.RenderGUI
         private int VertexBufferObject;
         private int VertexArrayObject;
 
+        private readonly float[] vertices =
+            { -0.5f, -0.5f, 1.0f,   //Bottom-left vertex
+               0.5f, -0.5f, 0.5f,   //Bottom-right vertex
+               0.0f,  0.5f, 0.0f }; //Top vertex
+
 
         public RenderGUI()
         {
@@ -36,11 +41,8 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Paint(object sender, PaintEventArgs e)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             Render();
             
-            glControl.SwapBuffers();
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -50,10 +52,11 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
-            GL.ClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+            GL.ClearColor(0.0f, 0.0f, 0.15f, 1.0f);
 
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
             // shader
             string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
@@ -65,6 +68,7 @@ namespace Rendering.Core.RenderGUI
             
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
 
             Render();
         }
@@ -72,8 +76,13 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_Disposed(object sender, EventArgs e)
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0); 
+            
             GL.DeleteBuffer(VertexBufferObject);
+            GL.DeleteVertexArray(VertexArrayObject);
 
+            GL.DeleteProgram(shader.Handle);
             shader.Dispose();
         }
 
@@ -85,17 +94,16 @@ namespace Rendering.Core.RenderGUI
 
         private void Render()
         {
-            float[] vertices =
-                { -0.5f, -0.5f, 0.0f,   //Bottom-left vertex
-                   0.5f, -0.5f, 0.0f,   //Bottom-right vertex
-                   0.0f,  0.5f, 0.0f }; //Top vertex
-
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
             shader.Use();
+            GL.BindVertexArray(VertexArrayObject);
+
             GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
 
-            RandomizeBackgroudColor();    // Just for fun & testing
+            glControl.SwapBuffers();
+            
+            //RandomizeBackgroudColor();    // Just for fun & testing
         }
     }
 }

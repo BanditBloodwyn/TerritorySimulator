@@ -4,7 +4,7 @@ using System.Text;
 using OpenTK.Graphics.OpenGL;
 
 
-namespace Rendering.Core.Shaders
+namespace Rendering.Core.Classes.Shaders
 {
     public class Shader : IDisposable
     {
@@ -81,6 +81,11 @@ namespace Rendering.Core.Shaders
 
                 disposedValue = true;
             }
+        }
+
+        public int GetAttribLocation(string attribName)
+        {
+            return GL.GetAttribLocation(Handle, attribName);
         }
     }
 }

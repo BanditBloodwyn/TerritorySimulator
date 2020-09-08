@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Texture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderGUI\RenderGUI.cs">
       <SubType>UserControl</SubType>
@@ -50,7 +51,7 @@
     <Compile Include="RenderGUI\RenderGUI.Designer.cs">
       <DependentUpon>RenderGUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Shaders\Shader.cs" />
+    <Compile Include="Classes\Shaders\Shader.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenTK">
@@ -59,6 +60,9 @@
     <PackageReference Include="OpenTK.GLControl">
       <Version>3.1.0</Version>
     </PackageReference>
+    <PackageReference Include="SixLabors.ImageSharp">
+      <Version>1.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="RenderGUI\RenderGUI.resx">
@@ -66,8 +70,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\GLSL\Fragment.frag" />
-    <None Include="Shaders\GLSL\Vertex.vert" />
+    <None Include="Classes\Shaders\GLSL\Fragment.frag" />
+    <None Include="Classes\Shaders\GLSL\Vertex.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -64,7 +64,6 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Paint(object sender, PaintEventArgs e)
         {
-            RefreshWindow();
             Render();
         }
 

@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shaders;
 using System.IO;
-
+using System.Drawing;
 
 namespace Rendering.Core.RenderGUI
 {
@@ -13,10 +13,18 @@ namespace Rendering.Core.RenderGUI
     {
         private GLControl glControl;
         private Shader shader;
-        private Texture texture;
+        private Texture texture1;
+        private Texture texture2;
         private int VertexBufferObject;
         private int VertexArrayObject;
         private int ElementBufferObject;
+
+        private float angleX;
+        private float angleY;
+        private float angleZ;
+
+        private Point oldMousePosition;
+        private Point newMousePosition;
 
         private float[] vertices =
             {   
@@ -40,7 +48,6 @@ namespace Rendering.Core.RenderGUI
                 0.5f, 1.0f   // top-center corner
             };
 
-
         public RenderGUI()
         {
             InitializeComponent();
@@ -55,6 +62,10 @@ namespace Rendering.Core.RenderGUI
             glControl.Disposed += GlControl_Disposed;
             glControl.Resize += GlControl_Resize;
             glControl.Paint += GlControl_Paint;
+            glControl.MouseWheel += GlControl_MouseWheel;
+            glControl.MouseMove += GlControl_MouseMove;
+            glControl.MouseUp += GlControl_MouseUp;
+
 
             pnlGL.Controls.Add(glControl);
         }
@@ -105,8 +116,13 @@ namespace Rendering.Core.RenderGUI
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
 
             InitTextures();
+           
+            shader.SetInt("texture0", 0);
+            shader.SetInt("texture1", 1);
 
-            Render();
+            angleX = 0.0f;
+            angleY = 0.0f;
+            angleZ = 0.0f;
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)
@@ -124,14 +140,46 @@ namespace Rendering.Core.RenderGUI
             shader.Dispose();
         }
 
-        private void InitTextures()
+        private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            texture = new Texture("Resources\\Textures\\container.png");
-            texture.Use();
+            angleX += e.Delta / 30;
+
+            RefreshWindow();
+        }
+
+        private void GlControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            newMousePosition = e.Location;
+
+            if (e.Button == MouseButtons.Middle)
+            {
+
+                angleY += (newMousePosition.X - oldMousePosition.X) * 0.1f;
+                angleX += (newMousePosition.Y - oldMousePosition.Y) * 0.1f;
+                
+                oldMousePosition = e.Location;
+            }
+
+            RefreshWindow();
+        }
+
+        private void GlControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            oldMousePosition = e.Location;
+            newMousePosition = e.Location;
         }
 
         #endregion
 
+
+        private void InitTextures()
+        {
+            texture1 = new Texture("Resources\\Textures\\container.png");
+            texture2 = new Texture("Resources\\Textures\\awesomeface.png"); 
+            
+            texture1.Use(TextureUnit.Texture0);
+            texture2.Use(TextureUnit.Texture1);
+        }
 
         private void Render()
         {
@@ -139,8 +187,13 @@ namespace Rendering.Core.RenderGUI
 
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
+            ApplyTransforms(out Matrix4 transform);
+
+            texture1.Use(TextureUnit.Texture0);
+            texture2.Use(TextureUnit.Texture1);
+
+            shader.SetMatrix4("transform", transform);
             shader.Use();
-            texture.Use();
 
             GL.BindVertexArray(VertexArrayObject);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
@@ -148,35 +201,23 @@ namespace Rendering.Core.RenderGUI
             glControl.SwapBuffers();
         }
 
-        private void RandomizeBackgroudColor()
+        private void RefreshWindow()
         {
-            Random random = new Random();
-            GL.ClearColor((float)random.NextDouble() / 4, (float)random.NextDouble() / 4, (float)random.NextDouble() / 4, 1.0f);
+            Render();
         }
 
-        private void RandomizeTriangles()
+        private void ApplyTransforms(out Matrix4 transform)
         {
-            Random random = new Random();
-
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                if (i == 3 || i == 8 || i == 13)
-                    i += 2;
-                vertices[i] = (float)random.NextDouble() * 2 - 1;
-            }
+            transform = Matrix4.Identity;
+            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(angleX));
+            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(angleY));
+            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(angleZ));
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
+            angleX = angleY = angleZ = 0;
             RefreshWindow();
-        }
-
-        private void RefreshWindow()
-        {
-            RandomizeBackgroudColor();
-            RandomizeTriangles();
-
-            Render();
         }
     }
 }

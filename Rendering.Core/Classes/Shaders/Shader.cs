@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -86,6 +87,55 @@ namespace Rendering.Core.Classes.Shaders
         public int GetAttribLocation(string attribName)
         {
             return GL.GetAttribLocation(Handle, attribName);
+        }
+
+        /// <summary>
+        /// Set a uniform int on this shader.
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        public void SetInt(string name, int value)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.Uniform1(location, value);
+        }
+
+        /// <summary>
+        /// Set a uniform float on this shader.
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        public void SetFloat(string name, float value)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.Uniform1(location, value);
+        }
+
+        /// <summary>
+        /// Set a uniform Matrix4 on this shader
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        /// <remarks>
+        ///   <para>
+        ///   The matrix is transposed before being sent to the shader.
+        ///   </para>
+        /// </remarks>
+        public void SetMatrix4(string name, Matrix4 value)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.UniformMatrix4(location, true, ref value);
+        }
+
+        /// <summary>
+        /// Set a uniform Vector3 on this shader.
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        public void SetVector3(string name, Vector3 value)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.Uniform3(location, value);
         }
     }
 }

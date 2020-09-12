@@ -6,6 +6,8 @@ using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shaders;
 using System.IO;
 using System.Drawing;
+using Rendering.Core.Classes.Shapes;
+using System.Collections.Generic;
 
 namespace Rendering.Core.RenderGUI
 {
@@ -13,40 +15,15 @@ namespace Rendering.Core.RenderGUI
     {
         private GLControl glControl;
         private Shader shader;
-        private Texture texture1;
-        private Texture texture2;
         private int VertexBufferObject;
         private int VertexArrayObject;
         private int ElementBufferObject;
 
-        private float angleX;
-        private float angleY;
-        private float angleZ;
-
         private Point oldMousePosition;
         private Point newMousePosition;
 
-        private float[] vertices =
-            {   
-                //Position         Texture coordinates
-                0.5f,  0.5f, 0.0f, 1.0f, 1.0f,  // top right
-                0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
-               -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // bottom left
-               -0.5f,  0.5f, 0.0f, 0.0f, 1.0f   // top left
-            };
+        private List<GLShape> shapes;
 
-        private uint[] indices = 
-            {               // note that we start from 0!
-                0, 1, 3,    // first triangle
-                1, 2, 3     // second triangle
-            };
-
-        private float[] texCoords =
-            {
-                0.0f, 0.0f,  // lower-left corner  
-                1.0f, 0.0f,  // lower-right corner
-                0.5f, 1.0f   // top-center corner
-            };
 
         public RenderGUI()
         {
@@ -85,15 +62,20 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
+            CreateShapes();
+
             GL.ClearColor(0.0f, 0.0f, 0.15f, 1.0f);
 
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-
             ElementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
+            foreach (GLShape shape in shapes)
+            {
+                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, shape.Indices.Length * sizeof(uint), shape.Indices, BufferUsageHint.StaticDraw);
+            }
 
             // shader
             string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
@@ -114,15 +96,9 @@ namespace Rendering.Core.RenderGUI
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-
-            InitTextures();
            
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
-
-            angleX = 0.0f;
-            angleY = 0.0f;
-            angleZ = 0.0f;
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)
@@ -142,8 +118,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            angleX += e.Delta / 30;
-
+            // TODO: implement zooming here
             RefreshWindow();
         }
 
@@ -153,14 +128,18 @@ namespace Rendering.Core.RenderGUI
 
             if (e.Button == MouseButtons.Middle)
             {
+                foreach(GLShape shape in shapes)
+                {
+                    shape.Rotate(
+                        (newMousePosition.Y - oldMousePosition.Y) * 0.1f,
+                        (newMousePosition.X - oldMousePosition.X) * 0.1f, 
+                        0);
+                }
 
-                angleY += (newMousePosition.X - oldMousePosition.X) * 0.1f;
-                angleX += (newMousePosition.Y - oldMousePosition.Y) * 0.1f;
-                
                 oldMousePosition = e.Location;
+               
+                RefreshWindow();
             }
-
-            RefreshWindow();
         }
 
         private void GlControl_MouseUp(object sender, MouseEventArgs e)
@@ -172,32 +151,48 @@ namespace Rendering.Core.RenderGUI
         #endregion
 
 
-        private void InitTextures()
+        private void CreateShapes()
         {
-            texture1 = new Texture("Resources\\Textures\\container.png");
-            texture2 = new Texture("Resources\\Textures\\awesomeface.png"); 
-            
-            texture1.Use(TextureUnit.Texture0);
-            texture2.Use(TextureUnit.Texture1);
+            shapes = new List<GLShape>();
+
+            GLRectangle rectangle = new GLRectangle(
+                new Vector3(0.5f,  0.5f, 0.0f),
+                new Vector3(0.5f, -0.5f, 0.0f),
+                new Vector3(-0.5f, -0.5f, 0.0f),
+                new Vector3(-0.5f, 0.5f, 0.0f));
+            rectangle.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
+            rectangle.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
+            shapes.Add(rectangle);
+
+            rectangle = new GLRectangle(
+                new Vector3(0.2f, 0.2f, 0.5f),
+                new Vector3(0.2f, -0.2f, -0.5f),
+                new Vector3(-0.2f, -0.2f, -0.5f),
+                new Vector3(-0.2f, 0.2f, 0.5f));
+            shapes.Add(rectangle);
         }
 
         private void Render()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
+            
+            foreach (GLShape shape in shapes)
+            {                
+                foreach (var texture in shape.Textures)
+                {
+                    texture.Key.Use(texture.Value);
+                }
 
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-
-            ApplyTransforms(out Matrix4 transform);
-
-            texture1.Use(TextureUnit.Texture0);
-            texture2.Use(TextureUnit.Texture1);
-
-            shader.SetMatrix4("transform", transform);
-            shader.Use();
+                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                
+                ApplyTransforms(shape, out Matrix4 transform);
+                shader.SetMatrix4("transform", transform);
+                shader.Use();
+            }
 
             GL.BindVertexArray(VertexArrayObject);
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
-            
+
             glControl.SwapBuffers();
         }
 
@@ -206,17 +201,21 @@ namespace Rendering.Core.RenderGUI
             Render();
         }
 
-        private void ApplyTransforms(out Matrix4 transform)
+        private void ApplyTransforms(GLShape shape, out Matrix4 transform)
         {
             transform = Matrix4.Identity;
-            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(angleX));
-            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(angleY));
-            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(angleZ));
+            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(shape.AngleX));
+            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleY));
+            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleZ));
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            angleX = angleY = angleZ = 0;
+            foreach(GLShape shape in shapes)
+            {
+                shape.ResetRotation();
+            }
+            
             RefreshWindow();
         }
     }

@@ -41,8 +41,6 @@ namespace Rendering.Core.RenderGUI
             glControl.Paint += GlControl_Paint;
             glControl.MouseWheel += GlControl_MouseWheel;
             glControl.MouseMove += GlControl_MouseMove;
-            glControl.MouseUp += GlControl_MouseUp;
-
 
             pnlGL.Controls.Add(glControl);
         }
@@ -52,7 +50,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Paint(object sender, PaintEventArgs e)
         {
-            Render();
+
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -139,17 +137,21 @@ namespace Rendering.Core.RenderGUI
                         (newMousePosition.X - oldMousePosition.X) * 0.1f, 
                         0);
                 }
-               
+                RefreshWindow();
+            }
+            if (e.Button == MouseButtons.Middle)
+            {
+                foreach (GLShape shape in shapes)
+                {
+                    shape.Translate(
+                        (newMousePosition.Y - oldMousePosition.Y) * 0.002f,
+                        (newMousePosition.X - oldMousePosition.X) * 0.002f,
+                        0);
+                }
                 RefreshWindow();
             }
 
             oldMousePosition = e.Location;
-        }
-
-        private void GlControl_MouseUp(object sender, MouseEventArgs e)
-        {
-            oldMousePosition = e.Location;
-            newMousePosition = e.Location;
         }
 
         #endregion
@@ -187,13 +189,13 @@ namespace Rendering.Core.RenderGUI
                     texture.Key.Use(texture.Value);
                 }
 
-                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
-                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
-                
                 ApplyTransforms(shape, out Matrix4 transform);
                 shader.SetMatrix4("transform", transform);
-                shader.Use();
+                
+                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
             }
+            shader.Use();
 
             GL.BindVertexArray(VertexArrayObject);
 
@@ -210,6 +212,7 @@ namespace Rendering.Core.RenderGUI
             transform = Matrix4.Identity;
             transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
             transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
+            transform *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)

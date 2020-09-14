@@ -3,9 +3,9 @@
 
 namespace Rendering.Core.Classes.Shapes
 {
-    class GLRectangle : GLShape
+    class GLQuadrilateral : GLShape
     {
-        public GLRectangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Vector3 vertex4)
+        public GLQuadrilateral(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, Vector3 vertex4)
         {
             Vertices = new float[]
             {

@@ -176,7 +176,7 @@ namespace Rendering.Core.RenderGUI
         {
             shapes = new List<GLShape>();
 
-            GLRectangle rectangle = new GLRectangle(
+            GLQuadrilateral rectangle = new GLQuadrilateral(
                 new Vector3(0.5f,  0.5f, 0.0f),
                 new Vector3(0.5f, -0.5f, 0.0f),
                 new Vector3(-0.5f, -0.5f, 0.0f),
@@ -185,7 +185,7 @@ namespace Rendering.Core.RenderGUI
             rectangle.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
             shapes.Add(rectangle);
 
-            rectangle = new GLRectangle(
+            rectangle = new GLQuadrilateral(
                 new Vector3(0.2f, 0.2f, 0.5f),
                 new Vector3(0.2f, -0.2f, -0.5f),
                 new Vector3(-0.2f, -0.2f, -0.5f),

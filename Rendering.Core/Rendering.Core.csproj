@@ -43,8 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Shapes\GLCube.cs" />
     <Compile Include="Classes\Shapes\GLRectangle.cs" />
     <Compile Include="Classes\Shapes\GLShape.cs" />
+    <Compile Include="Classes\Shapes\GLSphere.cs" />
+    <Compile Include="Classes\Shapes\GLTriangle.cs" />
     <Compile Include="Classes\Texture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderGUI\RenderGUI.cs">

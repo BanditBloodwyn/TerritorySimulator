@@ -62,6 +62,8 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
+            GL.Enable(EnableCap.DepthTest);
+            
             CreateShapes();
 
             GL.ClearColor(0.0f, 0.0f, 0.15f, 1.0f);
@@ -99,6 +101,8 @@ namespace Rendering.Core.RenderGUI
            
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
+
+            Render();
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)
@@ -135,11 +139,11 @@ namespace Rendering.Core.RenderGUI
                         (newMousePosition.X - oldMousePosition.X) * 0.1f, 
                         0);
                 }
-
-                oldMousePosition = e.Location;
                
                 RefreshWindow();
             }
+
+            oldMousePosition = e.Location;
         }
 
         private void GlControl_MouseUp(object sender, MouseEventArgs e)
@@ -174,7 +178,7 @@ namespace Rendering.Core.RenderGUI
 
         private void Render()
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
             foreach (GLShape shape in shapes)
             {                
@@ -215,7 +219,7 @@ namespace Rendering.Core.RenderGUI
             {
                 shape.ResetRotation();
             }
-            
+
             RefreshWindow();
         }
     }

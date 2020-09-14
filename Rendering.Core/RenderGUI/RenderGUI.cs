@@ -130,7 +130,7 @@ namespace Rendering.Core.RenderGUI
         {
             newMousePosition = e.Location;
 
-            if (e.Button == MouseButtons.Middle)
+            if (e.Button == MouseButtons.Left)
             {
                 foreach(GLShape shape in shapes)
                 {
@@ -208,9 +208,8 @@ namespace Rendering.Core.RenderGUI
         private void ApplyTransforms(GLShape shape, out Matrix4 transform)
         {
             transform = Matrix4.Identity;
-            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(shape.AngleX));
-            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleY));
-            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleZ));
+            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
+            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)

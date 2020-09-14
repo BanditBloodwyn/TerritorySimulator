@@ -50,7 +50,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Paint(object sender, PaintEventArgs e)
         {
-
+            RefreshWindow();
         }
 
         private void GlControl_Resize(object sender, EventArgs e)
@@ -156,6 +156,21 @@ namespace Rendering.Core.RenderGUI
 
         #endregion
 
+        #region Controls
+
+        private
+            void btnRefresh_Click(object sender, EventArgs e)
+        {
+            foreach (GLShape shape in shapes)
+            {
+                shape.ResetRotation();
+            }
+
+            RefreshWindow();
+        }
+
+        #endregion
+
 
         private void CreateShapes()
         {
@@ -213,16 +228,6 @@ namespace Rendering.Core.RenderGUI
             transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
             transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
             transform *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
-        }
-
-        private void btnRefresh_Click(object sender, EventArgs e)
-        {
-            foreach(GLShape shape in shapes)
-            {
-                shape.ResetRotation();
-            }
-
-            RefreshWindow();
         }
     }
 }

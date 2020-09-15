@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Windows.Forms;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using Rendering.Core.Classes;
-using Rendering.Core.Classes.Shaders;
 using System.IO;
 using System.Drawing;
-using Rendering.Core.Classes.Shapes;
 using System.Collections.Generic;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using Rendering.Core.Classes.Shaders;
+using Rendering.Core.Classes.Shapes;
+using Rendering.Core.Classes.Utilities;
+
 
 namespace Rendering.Core.RenderGUI
 {
@@ -22,10 +23,9 @@ namespace Rendering.Core.RenderGUI
         private Point oldMousePosition;
         private Point newMousePosition;
 
+        private Camera camera;
+
         private List<GLShape> shapes;
-        private Matrix4 projection;
-        private float fov;
-        private float aspect;
 
 
         public RenderGUI()
@@ -59,13 +59,18 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_Resize(object sender, EventArgs e)
         {
             GL.Viewport(0, 0, glControl.Width, glControl.Height);
-            ApplyProjectionTransform(fov);
+
+            if (shapes == null || shader == null || camera == null)
+                return;
+
+            camera.AspectRatio = (float)glControl.Width / (float)glControl.Height;
+            RefreshWindow();
         }
 
         private void GlControl_Load(object sender, EventArgs e)
         {
             GL.Enable(EnableCap.DepthTest);
-            
+
             CreateShapes();
 
             GL.ClearColor(0.0f, 0.0f, 0.15f, 1.0f);
@@ -90,7 +95,7 @@ namespace Rendering.Core.RenderGUI
             VertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(VertexArrayObject);
 
-            int vertexLocation = shader.GetAttribLocation("aPosition"); 
+            int vertexLocation = shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
 
@@ -100,12 +105,11 @@ namespace Rendering.Core.RenderGUI
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
-           
+
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
 
-            fov = 45.0f;
-            ApplyProjectionTransform(fov);
+            InitializeCamera();
 
             Render();
         }
@@ -127,8 +131,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            fov -= e.Delta / 60;
-            ApplyProjectionTransform(fov);
+            camera.Position += camera.Front * e.Delta * 0.001f;
 
             RefreshWindow();
         }
@@ -139,24 +142,33 @@ namespace Rendering.Core.RenderGUI
 
             if (e.Button == MouseButtons.Left)
             {
-                foreach(GLShape shape in shapes)
+                foreach (GLShape shape in shapes)
                 {
                     shape.Rotate(
                         (newMousePosition.Y - oldMousePosition.Y) * 0.1f,
-                        (newMousePosition.X - oldMousePosition.X) * 0.1f, 
+                        (newMousePosition.X - oldMousePosition.X) * 0.1f,
                         0);
                 }
                 RefreshWindow();
             }
+
+            if (e.Button == MouseButtons.Right)
+            {
+                float deltaPitch = (newMousePosition.Y - oldMousePosition.Y) * 0.02f;
+                float deltaYaw  = (newMousePosition.X - oldMousePosition.X) * 0.02f;
+
+                camera.Yaw -= deltaYaw;
+                camera.Pitch += deltaPitch;
+
+                RefreshWindow();
+            }
+
+
             if (e.Button == MouseButtons.Middle)
             {
-                foreach (GLShape shape in shapes)
-                {
-                    shape.Translate(
-                        (newMousePosition.Y - oldMousePosition.Y) * 0.002f,
-                        (newMousePosition.X - oldMousePosition.X) * 0.002f,
-                        0);
-                }
+                camera.Position += camera.Up * (newMousePosition.Y - oldMousePosition.Y) * 0.001f;
+                camera.Position -= camera.Right * (newMousePosition.X - oldMousePosition.X) * 0.001f;
+
                 RefreshWindow();
             }
 
@@ -175,6 +187,9 @@ namespace Rendering.Core.RenderGUI
                 shape.ResetRotation();
             }
 
+            camera.Pitch = 0;
+            camera.Yaw = -90;
+
             RefreshWindow();
         }
 
@@ -186,7 +201,7 @@ namespace Rendering.Core.RenderGUI
             shapes = new List<GLShape>();
 
             GLQuadrilateral rectangle = new GLQuadrilateral(
-                new Vector3(0.5f,  0.5f, 0.0f),
+                new Vector3(0.5f, 0.5f, 0.0f),
                 new Vector3(0.5f, -0.5f, 0.0f),
                 new Vector3(-0.5f, -0.5f, 0.0f),
                 new Vector3(-0.5f, 0.5f, 0.0f));
@@ -210,26 +225,35 @@ namespace Rendering.Core.RenderGUI
 
         }
 
+        private void InitializeCamera()
+        {
+            camera = new Camera(Vector3.UnitZ * 3, (float)glControl.Width / (float)glControl.Height);
+            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
+            
+            camera.Pitch = 0;
+            camera.Yaw = -90;
+        }
+
         private void Render()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            
+
             foreach (GLShape shape in shapes)
-            {                
+            {
                 foreach (var texture in shape.Textures)
                 {
                     texture.Key.Use(texture.Value);
                 }
 
                 ApplyModelTransforms(shape, out Matrix4 model);
-                ApplyViewTransform(0.0f, 0.0f, -2.0f, out Matrix4 view);
                 shader.SetMatrix4("model", model);
-                shader.SetMatrix4("view", view);
-                shader.SetMatrix4("projection", projection);
+                shader.SetMatrix4("view", camera.GetViewMatrix());
 
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
                 GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
             }
+
+            shader.SetMatrix4("projection", camera.GetProjectionMatrix());
             shader.Use();
 
             GL.BindVertexArray(VertexArrayObject);
@@ -248,23 +272,6 @@ namespace Rendering.Core.RenderGUI
             model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
             model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
             model *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
-        }
-
-        private void ApplyViewTransform(float x, float y, float z, out Matrix4 view)
-        {
-            view = Matrix4.CreateTranslation(x, y, z);
-        }
-
-        private void ApplyProjectionTransform(float fov)
-        {
-            if (fov == 0)
-                fov = 45.0f;
-           
-            aspect = (float)glControl.Width / (float)glControl.Height;
-            if (aspect < 0)
-                aspect = 0;
-
-            projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fov), aspect, 0.1f, 100.0f);
         }
     }
 }

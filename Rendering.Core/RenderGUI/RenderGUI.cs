@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shaders;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
-
+using System.Linq;
 
 namespace Rendering.Core.RenderGUI
 {
@@ -18,7 +18,6 @@ namespace Rendering.Core.RenderGUI
         private Shader shader;
         private int VertexBufferObject;
         private int VertexArrayObject;
-        private int ElementBufferObject;
 
         private Point oldMousePosition;
         private Point newMousePosition;
@@ -70,21 +69,19 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_Load(object sender, EventArgs e)
         {
             GL.Enable(EnableCap.DepthTest);
+            GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
 
             CreateShapes();
-
-            GL.ClearColor(0.0f, 0.0f, 0.15f, 1.0f);
+            List<float> allVertices = new List<float>();
+            foreach (GLShape shape in shapes)
+                allVertices.AddRange(shape.Vertices);
 
             VertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            ElementBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, allVertices.ToArray().Length * sizeof(float), allVertices.ToArray(), BufferUsageHint.StaticDraw);
 
             foreach (GLShape shape in shapes)
-            {
                 GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, shape.Indices.Length * sizeof(uint), shape.Indices, BufferUsageHint.StaticDraw);
-            }
 
             // shader
             string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
@@ -104,7 +101,6 @@ namespace Rendering.Core.RenderGUI
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ElementBufferObject);
 
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
@@ -122,7 +118,6 @@ namespace Rendering.Core.RenderGUI
             GL.UseProgram(0);
 
             GL.DeleteBuffer(VertexBufferObject);
-            GL.DeleteBuffer(ElementBufferObject);
             GL.DeleteVertexArray(VertexArrayObject);
 
             GL.DeleteProgram(shader.Handle);
@@ -154,8 +149,8 @@ namespace Rendering.Core.RenderGUI
 
             if (e.Button == MouseButtons.Right)
             {
-                float deltaPitch = (newMousePosition.Y - oldMousePosition.Y) * 0.02f;
-                float deltaYaw  = (newMousePosition.X - oldMousePosition.X) * 0.02f;
+                float deltaPitch = (newMousePosition.Y - oldMousePosition.Y) * 0.05f;
+                float deltaYaw  = (newMousePosition.X - oldMousePosition.X) * 0.05f;
 
                 camera.Yaw -= deltaYaw;
                 camera.Pitch += deltaPitch;
@@ -200,28 +195,10 @@ namespace Rendering.Core.RenderGUI
         {
             shapes = new List<GLShape>();
 
-            GLQuadrilateral rectangle = new GLQuadrilateral(
-                new Vector3(0.5f, 0.5f, 0.0f),
-                new Vector3(0.5f, -0.5f, 0.0f),
-                new Vector3(-0.5f, -0.5f, 0.0f),
-                new Vector3(-0.5f, 0.5f, 0.0f));
-            rectangle.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
-            rectangle.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
-            shapes.Add(rectangle);
-
-            rectangle = new GLQuadrilateral(
-                new Vector3(0.2f, 0.2f, 0.5f),
-                new Vector3(0.2f, -0.2f, -0.5f),
-                new Vector3(-0.2f, -0.2f, -0.5f),
-                new Vector3(-0.2f, 0.2f, 0.5f));
-            shapes.Add(rectangle);
-
-            rectangle = new GLQuadrilateral(
-                new Vector3(0.4f, 0.4f, 0.3f),
-                new Vector3(0.4f, -0.4f, -0.3f),
-                new Vector3(-0.4f, -0.4f, -0.3f),
-                new Vector3(-0.4f, 0.4f, 0.3f));
-            shapes.Add(rectangle);
+            GLCube cube = new GLCube(1, 1, 1);
+            cube.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
+            cube.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
+            shapes.Add(cube);
 
         }
 
@@ -249,14 +226,15 @@ namespace Rendering.Core.RenderGUI
                 shader.SetMatrix4("model", model);
                 shader.SetMatrix4("view", camera.GetViewMatrix());
 
-                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.BindVertexArray(VertexArrayObject);
+
                 GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, shape.Vertices.Length / 5);
             }
 
             shader.SetMatrix4("projection", camera.GetProjectionMatrix());
             shader.Use();
 
-            GL.BindVertexArray(VertexArrayObject);
 
             glControl.SwapBuffers();
         }
@@ -271,7 +249,7 @@ namespace Rendering.Core.RenderGUI
             model = Matrix4.Identity;
             model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
             model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
-            model *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
+            model *= Matrix4.CreateTranslation(shape.PositionX, shape.PositionY, shape.PositionZ);
         }
     }
 }

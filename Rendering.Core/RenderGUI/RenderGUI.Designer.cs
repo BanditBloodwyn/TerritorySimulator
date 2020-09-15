@@ -29,29 +29,29 @@
         private void InitializeComponent()
         {
             this.pnlGL = new System.Windows.Forms.Panel();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
             this.pnlGL.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlGL
             // 
-            this.pnlGL.Controls.Add(this.btnRefresh);
+            this.pnlGL.Controls.Add(this.btnReset);
             this.pnlGL.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlGL.Location = new System.Drawing.Point(0, 0);
             this.pnlGL.Name = "pnlGL";
             this.pnlGL.Size = new System.Drawing.Size(630, 466);
             this.pnlGL.TabIndex = 0;
             // 
-            // btnRefresh
+            // btnReset
             // 
-            this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnRefresh.Location = new System.Drawing.Point(3, 440);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
-            this.btnRefresh.TabIndex = 0;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnReset.Location = new System.Drawing.Point(3, 440);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(75, 23);
+            this.btnReset.TabIndex = 0;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // RenderGUI
             // 
@@ -68,6 +68,6 @@
         #endregion
 
         private System.Windows.Forms.Panel pnlGL;
-        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnReset;
     }
 }

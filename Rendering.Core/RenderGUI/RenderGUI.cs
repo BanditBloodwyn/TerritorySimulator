@@ -184,6 +184,7 @@ namespace Rendering.Core.RenderGUI
 
             camera.Pitch = 0;
             camera.Yaw = -90;
+            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
 
             RefreshWindow();
         }
@@ -200,6 +201,21 @@ namespace Rendering.Core.RenderGUI
             cube.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
             shapes.Add(cube);
 
+            cube = new GLCube(0.5f, 0.5f, 0.5f);
+            cube.Translate(1, 0, 0);
+            shapes.Add(cube);
+
+            cube = new GLCube(0.5f, 0.5f, 0.5f);
+            cube.Translate(-1, 0, 0);
+            shapes.Add(cube);
+            
+            cube = new GLCube(0.5f, 0.5f, 0.5f);
+            cube.Translate(0, 1, 0);
+            shapes.Add(cube);
+
+            cube = new GLCube(0.5f, 0.5f, 0.5f);
+            cube.Translate(0, -1, 0);
+            shapes.Add(cube);
         }
 
         private void InitializeCamera()

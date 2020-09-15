@@ -23,6 +23,9 @@ namespace Rendering.Core.RenderGUI
         private Point newMousePosition;
 
         private List<GLShape> shapes;
+        private Matrix4 projection;
+        private float fov;
+        private float aspect;
 
 
         public RenderGUI()
@@ -56,6 +59,7 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_Resize(object sender, EventArgs e)
         {
             GL.Viewport(0, 0, glControl.Width, glControl.Height);
+            ApplyProjectionTransform(fov);
         }
 
         private void GlControl_Load(object sender, EventArgs e)
@@ -100,6 +104,9 @@ namespace Rendering.Core.RenderGUI
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
 
+            fov = 45.0f;
+            ApplyProjectionTransform(fov);
+
             Render();
         }
 
@@ -120,7 +127,9 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            // TODO: implement zooming here
+            fov -= e.Delta / 60;
+            ApplyProjectionTransform(fov);
+
             RefreshWindow();
         }
 
@@ -191,6 +200,14 @@ namespace Rendering.Core.RenderGUI
                 new Vector3(-0.2f, -0.2f, -0.5f),
                 new Vector3(-0.2f, 0.2f, 0.5f));
             shapes.Add(rectangle);
+
+            rectangle = new GLQuadrilateral(
+                new Vector3(0.4f, 0.4f, 0.3f),
+                new Vector3(0.4f, -0.4f, -0.3f),
+                new Vector3(-0.4f, -0.4f, -0.3f),
+                new Vector3(-0.4f, 0.4f, 0.3f));
+            shapes.Add(rectangle);
+
         }
 
         private void Render()
@@ -204,9 +221,12 @@ namespace Rendering.Core.RenderGUI
                     texture.Key.Use(texture.Value);
                 }
 
-                ApplyTransforms(shape, out Matrix4 transform);
-                shader.SetMatrix4("transform", transform);
-                
+                ApplyModelTransforms(shape, out Matrix4 model);
+                ApplyViewTransform(0.0f, 0.0f, -2.0f, out Matrix4 view);
+                shader.SetMatrix4("model", model);
+                shader.SetMatrix4("view", view);
+                shader.SetMatrix4("projection", projection);
+
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
                 GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
             }
@@ -222,12 +242,29 @@ namespace Rendering.Core.RenderGUI
             Render();
         }
 
-        private void ApplyTransforms(GLShape shape, out Matrix4 transform)
+        private void ApplyModelTransforms(GLShape shape, out Matrix4 model)
         {
-            transform = Matrix4.Identity;
-            transform *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
-            transform *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
-            transform *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
+            model = Matrix4.Identity;
+            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
+            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
+            model *= Matrix4.CreateTranslation(shape.PositionY, -shape.PositionX, shape.PositionZ);
+        }
+
+        private void ApplyViewTransform(float x, float y, float z, out Matrix4 view)
+        {
+            view = Matrix4.CreateTranslation(x, y, z);
+        }
+
+        private void ApplyProjectionTransform(float fov)
+        {
+            if (fov == 0)
+                fov = 45.0f;
+           
+            aspect = (float)glControl.Width / (float)glControl.Height;
+            if (aspect < 0)
+                aspect = 0;
+
+            projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fov), aspect, 0.1f, 100.0f);
         }
     }
 }

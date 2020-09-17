@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using System.Collections.Generic;
 
 
 namespace Rendering.Core.Classes.Shapes
@@ -9,17 +10,13 @@ namespace Rendering.Core.Classes.Shapes
         {
             Vertices = new float[]
             {
-                //Position                          Texture coordinates
+                //Position              Texture coordinates
                 -length/2, -width/2, 0, 1.0f, 1.0f,
                 length/2, -width/2, 0, 1.0f, 0.0f,
                 length/2, width/2, 0, 0.0f, 0.0f,
                 -length/2, -width/2, 0, 1.0f, 1.0f,
                 length/2, width/2, 0, 0.0f, 0.0f,
                 -length/2, width/2, 0, 0.0f, 1.0f,
-            };
-
-            Indices = new uint[]
-            {               // note that we start from 0!
             };
         }
     }

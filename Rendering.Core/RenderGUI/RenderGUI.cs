@@ -10,6 +10,7 @@ using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
 using System.Linq;
 
+
 namespace Rendering.Core.RenderGUI
 {
     public partial class RenderGUI : UserControl
@@ -43,6 +44,7 @@ namespace Rendering.Core.RenderGUI
             glControl.Paint += GlControl_Paint;
             glControl.MouseWheel += GlControl_MouseWheel;
             glControl.MouseMove += GlControl_MouseMove;
+            glControl.KeyDown += GlControl_KeyDown;
 
             pnlGL.Controls.Add(glControl);
         }
@@ -140,8 +142,8 @@ namespace Rendering.Core.RenderGUI
                 foreach (GLShape shape in shapes)
                 {
                     shape.Rotate(
-                        (newMousePosition.Y - oldMousePosition.Y) * 0.1f,
-                        (newMousePosition.X - oldMousePosition.X) * 0.1f,
+                        (oldMousePosition.Y - newMousePosition.Y) * 0.1f,
+                        (oldMousePosition.X - newMousePosition.X) * 0.1f,
                         0);
                 }
                 RefreshWindow();
@@ -170,6 +172,17 @@ namespace Rendering.Core.RenderGUI
             oldMousePosition = e.Location;
         }
 
+        private void GlControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                foreach (GLSphere sphere in shapes)
+                    sphere.Rasterization += 10;
+            if (e.KeyCode == Keys.Space)
+                foreach (GLSphere sphere in shapes)
+                    sphere.Rasterization -= 10;
+            RefreshWindow();
+        }
+
         #endregion
 
         #region Controls
@@ -184,7 +197,7 @@ namespace Rendering.Core.RenderGUI
 
             camera.Pitch = 0;
             camera.Yaw = -90;
-            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
+            camera.Position = new Vector3(0.0f, 0.0f, 5.0f);
 
             RefreshWindow();
         }
@@ -195,33 +208,24 @@ namespace Rendering.Core.RenderGUI
         private void CreateShapes()
         {
             shapes = new List<GLShape>();
+            GLSphere sphere;
 
-            GLCube cube = new GLCube(1, 1, 1);
-            cube.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
-            cube.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
-            shapes.Add(cube);
-
-            cube = new GLCube(0.5f, 0.5f, 0.5f);
-            cube.Translate(1, 0, 0);
-            shapes.Add(cube);
-
-            cube = new GLCube(0.5f, 0.5f, 0.5f);
-            cube.Translate(-1, 0, 0);
-            shapes.Add(cube);
-            
-            cube = new GLCube(0.5f, 0.5f, 0.5f);
-            cube.Translate(0, 1, 0);
-            shapes.Add(cube);
-
-            cube = new GLCube(0.5f, 0.5f, 0.5f);
-            cube.Translate(0, -1, 0);
-            shapes.Add(cube);
+            for(int i=0; i<1; i++)
+            {
+                sphere = new GLSphere();
+                sphere.Radius = 1.5f;
+                sphere.Rasterization = 8;
+                sphere.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
+                sphere.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
+                sphere.Translate(i*2, 0, 0);
+                shapes.Add(sphere);
+            }
         }
 
         private void InitializeCamera()
         {
             camera = new Camera(Vector3.UnitZ * 3, (float)glControl.Width / (float)glControl.Height);
-            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
+            camera.Position = new Vector3(0.0f, 0.0f, 5.0f);
             
             camera.Pitch = 0;
             camera.Yaw = -90;

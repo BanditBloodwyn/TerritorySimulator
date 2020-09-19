@@ -8,7 +8,6 @@ using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shaders;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
-using System.Linq;
 
 
 namespace Rendering.Core.RenderGUI
@@ -17,8 +16,9 @@ namespace Rendering.Core.RenderGUI
     {
         private GLControl glControl;
         private Shader shader;
-        private int VertexBufferObject;
-        private int VertexArrayObject;
+        private int vertexBufferObject;
+        private int vertexArrayObject;
+        private int elementBufferObject;
 
         private Point oldMousePosition;
         private Point newMousePosition;
@@ -64,7 +64,7 @@ namespace Rendering.Core.RenderGUI
             if (shapes == null || shader == null || camera == null)
                 return;
 
-            camera.AspectRatio = (float)glControl.Width / (float)glControl.Height;
+            camera.AspectRatio = (float)glControl.Width / glControl.Height;
             RefreshWindow();
         }
 
@@ -74,16 +74,21 @@ namespace Rendering.Core.RenderGUI
             GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
 
             CreateShapes();
+
             List<float> allVertices = new List<float>();
             foreach (GLShape shape in shapes)
                 allVertices.AddRange(shape.Vertices);
-
-            VertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, allVertices.ToArray().Length * sizeof(float), allVertices.ToArray(), BufferUsageHint.StaticDraw);
-
+            List<uint> allIndices = new List<uint>();
             foreach (GLShape shape in shapes)
-                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                allIndices.AddRange(shape.Indices);
+
+            vertexBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
+            GL.BufferData(BufferTarget.ArrayBuffer, allVertices.Count * sizeof(float), allVertices.ToArray(), BufferUsageHint.StaticDraw);
+
+            elementBufferObject = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, allIndices.Count * sizeof(uint), allIndices.ToArray(), BufferUsageHint.StaticDraw);
 
             // shader
             string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
@@ -91,8 +96,8 @@ namespace Rendering.Core.RenderGUI
             shader = new Shader(vertexPath, fragmentPath);
             shader.Use();
 
-            VertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(VertexArrayObject);
+            vertexArrayObject = GL.GenVertexArray();
+            GL.BindVertexArray(vertexArrayObject);
 
             int vertexLocation = shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
@@ -102,7 +107,8 @@ namespace Rendering.Core.RenderGUI
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
 
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
@@ -119,8 +125,8 @@ namespace Rendering.Core.RenderGUI
             GL.BindVertexArray(0);
             GL.UseProgram(0);
 
-            GL.DeleteBuffer(VertexBufferObject);
-            GL.DeleteVertexArray(VertexArrayObject);
+            GL.DeleteBuffer(vertexBufferObject);
+            GL.DeleteVertexArray(vertexArrayObject);
 
             GL.DeleteProgram(shader.Handle);
             shader.Dispose();
@@ -208,23 +214,30 @@ namespace Rendering.Core.RenderGUI
         private void CreateShapes()
         {
             shapes = new List<GLShape>();
-            GLSphere sphere;
 
-            for(int i=0; i<1; i++)
+            for (int i = 0; i < 1; i++)
             {
-                sphere = new GLSphere();
-                sphere.Radius = 1.5f;
-                sphere.Rasterization = 8;
-                sphere.SetTexture("Resources\\Textures\\container.png", TextureUnit.Texture0);
+                var sphere = new GLSphere();
+                sphere.Radius = 1.0f;
+                sphere.Rasterization = 10;
+                sphere.SetTexture("Resources\\Textures\\container.png");
                 sphere.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
-                sphere.Translate(i*2, 0, 0);
+                sphere.Translate(i * 2, 0, 0);
                 shapes.Add(sphere);
+            }
+            for (int i = 0; i < 1; i++)
+            {
+                GLCube cube = new GLCube(1, 1, 1);
+                cube.SetTexture("Resources\\Textures\\container.png");
+                cube.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
+                cube.Translate(i * 1.5f, 0, 0);
+                shapes.Add(cube);
             }
         }
 
         private void InitializeCamera()
         {
-            camera = new Camera(Vector3.UnitZ * 3, (float)glControl.Width / (float)glControl.Height);
+            camera = new Camera(Vector3.UnitZ * 3, (float)glControl.Width / glControl.Height);
             camera.Position = new Vector3(0.0f, 0.0f, 5.0f);
             
             camera.Pitch = 0;
@@ -246,10 +259,9 @@ namespace Rendering.Core.RenderGUI
                 shader.SetMatrix4("model", model);
                 shader.SetMatrix4("view", camera.GetViewMatrix());
 
-                GL.BindVertexArray(VertexArrayObject);
+                GL.BindVertexArray(vertexArrayObject);
 
-                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
-                GL.DrawArrays(PrimitiveType.Triangles, 0, shape.Vertices.Length / 5);
+                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
 
             shader.SetMatrix4("projection", camera.GetProjectionMatrix());

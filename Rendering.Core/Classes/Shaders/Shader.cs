@@ -10,14 +10,10 @@ namespace Rendering.Core.Classes.Shaders
     public class Shader : IDisposable
     {
         public int Handle;
-        private bool disposedValue = false;
+        private bool disposedValue;
 
         public Shader(string vertexPath, string fragmentPath)
         {
-            // shader handles
-            int VertexShader;
-            int FragmentShader;
-
             //  load shader source code
             string VertexShaderSource;
             using (StreamReader reader = new StreamReader(vertexPath, Encoding.UTF8))
@@ -28,10 +24,10 @@ namespace Rendering.Core.Classes.Shaders
                 FragmentShaderSource = reader.ReadToEnd();
 
             // generate shaders
-            VertexShader = GL.CreateShader(ShaderType.VertexShader);
+            var VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
 
-            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            var FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(FragmentShader, FragmentShaderSource);
 
             // compile shaders
@@ -94,10 +90,10 @@ namespace Rendering.Core.Classes.Shaders
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
-        public void SetInt(string name, int value)
+        public void SetInt(string name, int data)
         {
             int location = GL.GetUniformLocation(Handle, name);
-            GL.Uniform1(location, value);
+            GL.Uniform1(location, data);
         }
 
         /// <summary>
@@ -105,10 +101,10 @@ namespace Rendering.Core.Classes.Shaders
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
-        public void SetFloat(string name, float value)
+        public void SetFloat(string name, float data)
         {
             int location = GL.GetUniformLocation(Handle, name);
-            GL.Uniform1(location, value);
+            GL.Uniform1(location, data);
         }
 
         /// <summary>
@@ -121,10 +117,10 @@ namespace Rendering.Core.Classes.Shaders
         ///   The matrix is transposed before being sent to the shader.
         ///   </para>
         /// </remarks>
-        public void SetMatrix4(string name, Matrix4 value)
+        public void SetMatrix4(string name, Matrix4 data)
         {
             int location = GL.GetUniformLocation(Handle, name);
-            GL.UniformMatrix4(location, true, ref value);
+            GL.UniformMatrix4(location, true, ref data);
         }
 
         /// <summary>
@@ -132,10 +128,10 @@ namespace Rendering.Core.Classes.Shaders
         /// </summary>
         /// <param name="name">The name of the uniform</param>
         /// <param name="data">The data to set</param>
-        public void SetVector3(string name, Vector3 value)
+        public void SetVector3(string name, Vector3 data)
         {
             int location = GL.GetUniformLocation(Handle, name);
-            GL.Uniform3(location, value);
+            GL.Uniform3(location, data);
         }
     }
 }

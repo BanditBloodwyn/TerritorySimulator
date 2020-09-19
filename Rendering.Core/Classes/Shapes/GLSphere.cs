@@ -1,10 +1,6 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Rendering.Core.Classes.Shapes
@@ -42,7 +38,7 @@ namespace Rendering.Core.Classes.Shapes
 
         private void RecreateVertices()
         {
-            List<float> vertices = new List<float> { };
+            List<float> vertices = new List<float>();
 
             float alpha = 2 * (float)Math.PI / rasterization;
 
@@ -51,10 +47,10 @@ namespace Rendering.Core.Classes.Shapes
                 for (int j = 0; j < rasterization - 1; j++)
                 {
                     Vector3 vertex = new Vector3(
-                        radius * (float)Math.Sin(i * alpha * 0.5) * (float)Math.Sin(j * alpha),
-                        radius * (float)Math.Sin(i * alpha * 0.5) * (float)Math.Cos(j * alpha),
-                        radius * (float)Math.Cos(i * alpha * 0.5));
-                    vertices.AddRange(new float[] { vertex[0], vertex[1], vertex[2], 1, 0});
+                        radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Sin(j * alpha),
+                        radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Cos(j * alpha),
+                        radius * (float)Math.Cos(i * alpha * 1.0));
+                    vertices.AddRange(new[] { vertex[0], vertex[1], vertex[2]});
                 }
             }
 

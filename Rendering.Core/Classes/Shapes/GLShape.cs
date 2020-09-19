@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -19,11 +18,7 @@ namespace Rendering.Core.Classes.Shapes
         public float PositionY { get; protected set; }
         public float PositionZ { get; protected set; }
 
-        public Dictionary<Texture, TextureUnit> Textures
-        {
-            get;
-            private set;
-        }
+        public Dictionary<Texture, TextureUnit> Textures { get; }
 
         public GLShape()
         {

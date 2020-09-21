@@ -48,11 +48,14 @@ namespace Rendering.Core.Classes.Shapes
             {
                 for (int j = 0; j < rasterization + 1; j++)
                 {
-                    Vector3 vertex = new Vector3(
-                        radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Sin(j * alpha),
-                        radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Cos(j * alpha),
-                        radius * (float)Math.Cos(i * alpha * 1.0));
-                    vertices.AddRange(new[] { vertex[0], vertex[1], vertex[2], 1.0f, 0.0f});
+                    float x = radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Sin(j * alpha);
+                    float y = radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Cos(j * alpha);
+                    float z = (float)Math.Cos(i * alpha * 1.0);
+
+                    float textureX = (float)j / rasterization;
+                    float textureY = (float)i / rasterization * 2;
+
+                    vertices.AddRange(new[] { x, y, z, textureX, textureY });
                 }
             }
 
@@ -63,15 +66,13 @@ namespace Rendering.Core.Classes.Shapes
         {
             List<uint> indices = new List<uint>();
 
-            for (uint i = 0; i < rasterization; ++i)
+            for (uint i = 0; i < rasterization / 2; ++i)
             {
-                uint k1 = i * ((uint)rasterization + 1);     // beginning of current stack
-                uint k2 = k1 + (uint)rasterization + 1;      // beginning of next stack
+                uint k1 = i * ((uint)rasterization + 1);
+                uint k2 = k1 + (uint)rasterization + 1;
 
                 for (int j = 0; j < rasterization; ++j, ++k1, ++k2)
                 {
-                    // 2 triangles per sector excluding first and last stacks
-                    // k1 => k2 => k1+1
                     if (i != 0)
                     {
                         indices.Add(k1);
@@ -79,7 +80,6 @@ namespace Rendering.Core.Classes.Shapes
                         indices.Add(k1 + 1);
                     }
 
-                    // k1+1 => k2 => k2+1
                     if (i != (rasterization - 1))
                     {
                         indices.Add(k1 + 1);

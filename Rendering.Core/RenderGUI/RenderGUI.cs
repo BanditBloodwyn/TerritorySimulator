@@ -15,7 +15,9 @@ namespace Rendering.Core.RenderGUI
     public partial class RenderGUI : UserControl
     {
         private GLControl glControl;
+
         private Shader shader;
+
         private int vertexBufferObject;
         private int vertexArrayObject;
         private int elementBufferObject;
@@ -149,10 +151,10 @@ namespace Rendering.Core.RenderGUI
             {
                 foreach (GLShape shape in shapes)
                 {
-                    shape.Rotate(
-                        (oldMousePosition.Y - newMousePosition.Y) * 0.1f,
-                        (oldMousePosition.X - newMousePosition.X) * 0.1f,
-                        0);
+                    float deltaX = (oldMousePosition.Y - newMousePosition.Y) * 0.1f;
+                    float deltaY = (oldMousePosition.X - newMousePosition.X) * 0.1f;
+
+                    shape.Rotate(deltaX, deltaY, 0);
                 }
                 RefreshWindow();
             }
@@ -160,7 +162,7 @@ namespace Rendering.Core.RenderGUI
             if (e.Button == MouseButtons.Right)
             {
                 float deltaPitch = (newMousePosition.Y - oldMousePosition.Y) * 0.05f;
-                float deltaYaw  = (newMousePosition.X - oldMousePosition.X) * 0.05f;
+                float deltaYaw = (newMousePosition.X - oldMousePosition.X) * 0.05f;
 
                 camera.Yaw -= deltaYaw;
                 camera.Pitch += deltaPitch;
@@ -185,19 +187,25 @@ namespace Rendering.Core.RenderGUI
             if (e.KeyCode == Keys.Enter)
                 foreach (var glShape in shapes)
                 {
-                    var sphere = (GLSphere) glShape;
+                    var sphere = (GLSphere)glShape;
                     sphere.Rasterization += 1;
 
                     RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+
+                    GL.BufferData(BufferTarget.ArrayBuffer, sphere.Vertices.Length * sizeof(float), sphere.Vertices, BufferUsageHint.StaticDraw);
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, sphere.Indices.Length * sizeof(uint), sphere.Indices, BufferUsageHint.StaticDraw);
                 }
 
             if (e.KeyCode == Keys.Space)
                 foreach (var glShape in shapes)
                 {
-                    var sphere = (GLSphere) glShape;
+                    var sphere = (GLSphere)glShape;
                     sphere.Rasterization -= 1;
-                    
+
                     RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+
+                    GL.BufferData(BufferTarget.ArrayBuffer, sphere.Vertices.Length * sizeof(float), sphere.Vertices, BufferUsageHint.StaticDraw);
+                    GL.BufferData(BufferTarget.ElementArrayBuffer, sphere.Indices.Length * sizeof(uint), sphere.Indices, BufferUsageHint.StaticDraw);
                 }
 
             RefreshWindow();
@@ -215,10 +223,7 @@ namespace Rendering.Core.RenderGUI
                 shape.ResetRotation();
             }
 
-            camera.Pitch = 0;
-            camera.Yaw = -90;
-            camera.Position = new Vector3(0.0f, 0.0f, 5.0f);
-
+            ResetCamera();
             RefreshWindow();
         }
 
@@ -229,23 +234,25 @@ namespace Rendering.Core.RenderGUI
         {
             shapes = new List<GLShape>();
 
-            for (int i = 0; i < 1; i++)
-            {
-                var sphere = new GLSphere();
-                sphere.Radius = 1.0f;
-                sphere.Rasterization = 10;
-                sphere.SetTexture("Resources\\Textures\\container.png");
-                sphere.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
-                sphere.Translate(i * 2, 0, 0);
-                shapes.Add(sphere);
-            }
+            var sphere = new GLSphere();
+            sphere.Radius = 1.0f;
+            sphere.Rasterization = 128;
+            sphere.SetTexture("Resources\\Textures\\earth.jpg");
+            sphere.Rotate(90, 0, 0);
+            shapes.Add(sphere);
+
+            RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
         }
 
         private void InitializeCamera()
         {
             camera = new Camera(Vector3.UnitZ * 3, (float)glControl.Width / glControl.Height);
-            camera.Position = new Vector3(0.0f, 0.0f, 5.0f);
-            
+            ResetCamera();
+        }
+
+        private void ResetCamera()
+        {
+            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
             camera.Pitch = 0;
             camera.Yaw = -90;
         }
@@ -265,11 +272,6 @@ namespace Rendering.Core.RenderGUI
                 shader.SetMatrix4("model", model);
                 shader.SetMatrix4("view", camera.GetViewMatrix());
 
-                GL.BindVertexArray(vertexArrayObject);
-
-
-                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
-                GL.BufferData(BufferTarget.ElementArrayBuffer, shape.Indices.Length * sizeof(uint), shape.Indices, BufferUsageHint.StaticDraw);
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
 
@@ -288,8 +290,9 @@ namespace Rendering.Core.RenderGUI
         private void ApplyModelTransforms(GLShape shape, out Matrix4 model)
         {
             model = Matrix4.Identity;
-            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-shape.AngleX));
-            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-shape.AngleY));
+            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(shape.AngleX));
+            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleY));
+            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(shape.AngleZ));
             model *= Matrix4.CreateTranslation(shape.PositionX, shape.PositionY, shape.PositionZ);
         }
     }

@@ -21,8 +21,6 @@ namespace GUI.Main.WorldPanel
             renderControl.RasterizationChanged += RasterizationChanged;
             renderControl.Dock = DockStyle.Fill;
             splitContainer1.Panel2.Controls.Add(renderControl);
-
-            label1.Text = @"10";
         }
 
         private bool RasterizationChanged(string rasterization)

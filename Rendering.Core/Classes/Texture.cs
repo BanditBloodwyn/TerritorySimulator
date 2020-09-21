@@ -17,6 +17,7 @@ namespace Rendering.Core.Classes
 
             using (var image = new Bitmap(path))
             {
+                image.RotateFlip(RotateFlipType.Rotate180FlipX);
                 var data = image.LockBits(
                     new Rectangle(0, 0, image.Width, image.Height),
                     ImageLockMode.ReadOnly,

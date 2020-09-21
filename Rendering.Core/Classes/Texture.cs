@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using Core.Configuration;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 
@@ -9,6 +10,7 @@ namespace Rendering.Core.Classes
     class Texture
     {
         public int Handle { get; set; }
+        public bool Visible { get; set; }
 
         public Texture(string path)
         {
@@ -46,6 +48,12 @@ namespace Rendering.Core.Classes
         {
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2D, Handle);
+        }
+
+        public void MakeTransparent(TextureUnit unit = TextureUnit.Texture0)
+        {
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
     }
 }

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{08157F54-54F3-4F94-8989-05BC3F481B82}</ProjectGuid>
+    <ProjectGuid>{B005A888-AADB-448F-B292-04A32E6552A5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GUI.Layers</RootNamespace>
-    <AssemblyName>GUI.Layers</AssemblyName>
+    <RootNamespace>Core.Configuration</RootNamespace>
+    <AssemblyName>Core.Configuration</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -33,8 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,24 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindow\LayersGUI.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="MainWindow\LayersGUI.Designer.cs">
-      <DependentUpon>LayersGUI.cs</DependentUpon>
-    </Compile>
+    <Compile Include="LayerConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="MainWindow\LayersGUI.resx">
-      <DependentUpon>LayersGUI.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Core.Configuration\Core.Configuration.csproj">
-      <Project>{b005a888-aadb-448f-b292-04a32e6552a5}</Project>
-      <Name>Core.Configuration</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

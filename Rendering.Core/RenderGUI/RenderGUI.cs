@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
 using System.Collections.Generic;
+using Core.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shaders;
@@ -265,7 +266,10 @@ namespace Rendering.Core.RenderGUI
             {
                 foreach (var texture in shape.Textures)
                 {
-                    texture.Key.Use(texture.Value);
+                    if (LayerConfiguration.ShowEarthTexture)
+                        texture.Key.Use(texture.Value);
+                    else
+                        texture.Key.MakeTransparent(texture.Value);
                 }
 
                 ApplyModelTransforms(shape, out Matrix4 model);

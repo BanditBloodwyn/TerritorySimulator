@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.tvFilter = new System.Windows.Forms.TreeView();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.treeView1);
+            this.groupBox1.Controls.Add(this.tvFilter);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
@@ -45,16 +45,18 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Layers";
             // 
-            // treeView1
+            // tvFilter
             // 
-            this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tvFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.treeView1.BackColor = System.Drawing.SystemColors.Info;
-            this.treeView1.Location = new System.Drawing.Point(3, 20);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(144, 127);
-            this.treeView1.TabIndex = 0;
+            this.tvFilter.BackColor = System.Drawing.SystemColors.Info;
+            this.tvFilter.CheckBoxes = true;
+            this.tvFilter.Location = new System.Drawing.Point(3, 20);
+            this.tvFilter.Name = "tvFilter";
+            this.tvFilter.Size = new System.Drawing.Size(144, 127);
+            this.tvFilter.TabIndex = 0;
+            this.tvFilter.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvFilter_AfterCheck);
             // 
             // LayersGUI
             // 
@@ -70,6 +72,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TreeView treeView1;
+        private System.Windows.Forms.TreeView tvFilter;
     }
 }

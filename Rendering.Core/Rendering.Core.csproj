@@ -79,5 +79,11 @@
     <None Include="Classes\Shaders\GLSL\Fragment.frag" />
     <None Include="Classes\Shaders\GLSL\Vertex.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Configuration\Core.Configuration.csproj">
+      <Project>{b005a888-aadb-448f-b292-04a32e6552a5}</Project>
+      <Name>Core.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

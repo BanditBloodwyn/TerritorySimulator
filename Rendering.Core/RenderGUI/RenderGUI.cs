@@ -27,6 +27,8 @@ namespace Rendering.Core.RenderGUI
 
         private List<GLShape> shapes;
 
+        public Func<string, bool> RasterizationChanged;
+
 
         public RenderGUI()
         {
@@ -181,11 +183,23 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-                foreach (GLSphere sphere in shapes)
-                    sphere.Rasterization += 10;
+                foreach (var glShape in shapes)
+                {
+                    var sphere = (GLSphere) glShape;
+                    sphere.Rasterization += 1;
+
+                    RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+                }
+
             if (e.KeyCode == Keys.Space)
-                foreach (GLSphere sphere in shapes)
-                    sphere.Rasterization -= 10;
+                foreach (var glShape in shapes)
+                {
+                    var sphere = (GLSphere) glShape;
+                    sphere.Rasterization -= 1;
+                    
+                    RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+                }
+
             RefreshWindow();
         }
 
@@ -225,14 +239,6 @@ namespace Rendering.Core.RenderGUI
                 sphere.Translate(i * 2, 0, 0);
                 shapes.Add(sphere);
             }
-            for (int i = 0; i < 1; i++)
-            {
-                GLCube cube = new GLCube(1, 1, 1);
-                cube.SetTexture("Resources\\Textures\\container.png");
-                cube.SetTexture("Resources\\Textures\\awesomeface.png", TextureUnit.Texture1);
-                cube.Translate(i * 1.5f, 0, 0);
-                shapes.Add(cube);
-            }
         }
 
         private void InitializeCamera()
@@ -261,6 +267,9 @@ namespace Rendering.Core.RenderGUI
 
                 GL.BindVertexArray(vertexArrayObject);
 
+
+                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, shape.Indices.Length * sizeof(uint), shape.Indices, BufferUsageHint.StaticDraw);
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
 

@@ -50,7 +50,7 @@ namespace Rendering.Core.Classes.Shapes
                 {
                     float x = radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Sin(j * alpha);
                     float y = radius * (float)Math.Sin(i * alpha * 1.0) * (float)Math.Cos(j * alpha);
-                    float z = (float)Math.Cos(i * alpha * 1.0);
+                    float z = radius * (float)Math.Cos(i * alpha * 1.0);
 
                     float textureX = (float)j / rasterization;
                     float textureY = (float)i / rasterization * 2;

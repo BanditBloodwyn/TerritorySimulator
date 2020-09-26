@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Rendering.Core.Classes.Shapes
 {
-    class GLShape
+    public class GLShape
     {
         public float[] Vertices { get; protected set; }
         public uint[] Indices { get; protected set; }
@@ -26,7 +26,6 @@ namespace Rendering.Core.Classes.Shapes
             ResetRotation();
             ResetTranslation();
         }
-
 
         public void SetTexture(string path, TextureUnit unit = TextureUnit.Texture0)
         {

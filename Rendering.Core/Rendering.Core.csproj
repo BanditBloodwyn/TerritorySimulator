@@ -51,6 +51,7 @@
     <Compile Include="Classes\Texture.cs" />
     <Compile Include="Classes\Utilities\Camera.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="RenderGUI\RenderGUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -85,5 +86,6 @@
       <Name>Core.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

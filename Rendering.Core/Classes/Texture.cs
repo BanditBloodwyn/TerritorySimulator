@@ -1,13 +1,12 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using Core.Configuration;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 
 
 namespace Rendering.Core.Classes
 {
-    class Texture
+    public class Texture
     {
         public int Handle { get; set; }
         public bool Visible { get; set; }

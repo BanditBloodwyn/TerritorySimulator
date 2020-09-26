@@ -9,19 +9,13 @@ using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shaders;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
-
+using Rendering.Core.Rendering;
 
 namespace Rendering.Core.RenderGUI
 {
     public partial class RenderGUI : UserControl
     {
         private GLControl glControl;
-
-        private Shader shader;
-
-        private int vertexBufferObject;
-        private int vertexArrayObject;
-        private int elementBufferObject;
 
         private Point oldMousePosition;
         private Point newMousePosition;
@@ -31,6 +25,8 @@ namespace Rendering.Core.RenderGUI
         private List<GLShape> shapes;
 
         public Func<string, bool> RasterizationChanged;
+
+        private Renderer renderer;
 
 
         public RenderGUI()
@@ -75,52 +71,10 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
-            GL.Enable(EnableCap.DepthTest);
-            GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
-
             CreateShapes();
 
-            List<float> allVertices = new List<float>();
-            foreach (GLShape shape in shapes)
-                allVertices.AddRange(shape.Vertices);
-            List<uint> allIndices = new List<uint>();
-            foreach (GLShape shape in shapes)
-                allIndices.AddRange(shape.Indices);
-
-            vertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, allVertices.Count * sizeof(float), allVertices.ToArray(), BufferUsageHint.StaticDraw);
-
-            elementBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, allIndices.Count * sizeof(uint), allIndices.ToArray(), BufferUsageHint.StaticDraw);
-
-            // shader
-            string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
-            string fragmentPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Fragment.frag");
-            shader = new Shader(vertexPath, fragmentPath);
-            shader.Use();
-
-            vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(vertexArrayObject);
-
-            int vertexLocation = shader.GetAttribLocation("aPosition");
-            GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
-
-            int texCoordLocation = shader.GetAttribLocation("aTexCoord");
-            GL.EnableVertexAttribArray(texCoordLocation);
-            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-
-            shader.SetInt("texture0", 0);
-            shader.SetInt("texture1", 1);
-
-            InitializeCamera();
-
-            Render();
+            renderer = new Renderer();
+            renderer.Initialize(glControl.Width, glControl.Height, shapes.ToArray());
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)
@@ -186,9 +140,9 @@ namespace Rendering.Core.RenderGUI
         private void GlControl_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-                foreach (var glShape in shapes)
+                foreach (GLSphere glShape in shapes)
                 {
-                    var sphere = (GLSphere)glShape;
+                    var sphere = glShape;
                     sphere.Rasterization += 1;
 
                     RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
@@ -198,9 +152,9 @@ namespace Rendering.Core.RenderGUI
                 }
 
             if (e.KeyCode == Keys.Space)
-                foreach (var glShape in shapes)
+                foreach (GLSphere glShape in shapes)
                 {
-                    var sphere = (GLSphere)glShape;
+                    var sphere = glShape;
                     sphere.Rasterization -= 1;
 
                     RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
@@ -241,6 +195,14 @@ namespace Rendering.Core.RenderGUI
             sphere.SetTexture("Resources\\Textures\\earth.jpg");
             sphere.Rotate(90, 0, 0);
             shapes.Add(sphere);
+            
+            var stars = new GLSphere();
+            stars.Radius = 3.0f;
+            stars.Rasterization = 128;
+            stars.SetTexture("Resources\\Textures\\stars.png");
+            stars.Rotate(90, 0, 0);
+            stars.Translate(2, 0, 0);
+            shapes.Add(stars);
 
             RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
         }
@@ -275,13 +237,17 @@ namespace Rendering.Core.RenderGUI
                 ApplyModelTransforms(shape, out Matrix4 model);
                 shader.SetMatrix4("model", model);
                 shader.SetMatrix4("view", camera.GetViewMatrix());
+                shader.SetMatrix4("projection", camera.GetProjectionMatrix());
+                shader.Use();
+
+
+                //GL.BindBuffer(BufferTarget.ArrayBuffer, shape.vertexBufferObject);
+                GL.BufferData(BufferTarget.ArrayBuffer, shape.Vertices.Length * sizeof(float), shape.Vertices, BufferUsageHint.StaticDraw);
+                //GL.BindBuffer(BufferTarget.ElementArrayBuffer, shape.elementBufferObject);
+                GL.BufferData(BufferTarget.ElementArrayBuffer, shape.Indices.Length * sizeof(uint), shape.Indices, BufferUsageHint.StaticDraw);
 
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
-
-            shader.SetMatrix4("projection", camera.GetProjectionMatrix());
-            shader.Use();
-
 
             glControl.SwapBuffers();
         }

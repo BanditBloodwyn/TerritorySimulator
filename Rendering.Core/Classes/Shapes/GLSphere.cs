@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 
@@ -36,6 +35,9 @@ namespace Rendering.Core.Classes.Shapes
         {
             radius = 1;
             rasterization = 10;
+
+            RecreateVertices();
+            RecreateIndices();
         }
 
         private void RecreateVertices()

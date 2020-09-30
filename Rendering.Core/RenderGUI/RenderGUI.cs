@@ -169,14 +169,20 @@ namespace Rendering.Core.RenderGUI
         {
             List<GLShape> shapes = new List<GLShape>();
 
-            var sphere = new GLSphere();
-            sphere.Radius = 1.0f;
-            sphere.Rasterization = 128;
-            sphere.SetTexture("Resources\\Textures\\earth.jpg");
-            sphere.Rotate(90, 0, 0);
-            shapes.Add(sphere);
+            var earth = new GLSphere();
+            earth.Radius = 1.0f;
+            earth.Rasterization = 128;
+            earth.SetTexture("Resources\\Textures\\earth.jpg");
+            earth.Rotate(90, 0, 0);
+            shapes.Add(earth);
+            RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
-            RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+            var stars = new GLSphere();
+            stars.Radius = 100.0f;
+            stars.Rasterization = 128;
+            stars.SetTexture("Resources\\Textures\\stars.png");
+            stars.Rotate(90, 0, 0);
+            shapes.Add(stars);
 
             return shapes.ToArray();
         }

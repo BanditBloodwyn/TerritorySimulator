@@ -13,11 +13,6 @@ namespace Rendering.Core.Rendering
     public class Renderer
     {
         private Shader shader;
-
-        private List<GLShape> shapes;
-        
-        private Camera camera;
-
         private int vertexBufferObject;
         private int vertexArrayObject;
         private int elementBufferObject;
@@ -25,9 +20,8 @@ namespace Rendering.Core.Rendering
         private float screenWidth;
         private float screenHeight;
 
-        public Camera Camera { get; set; }
-
-        public GLShape[] Shapes => shapes.ToArray();
+        public Camera Camera { get; private set; }
+        public GLShape[] Shapes { get; private set; }
 
         public Renderer(float screenWidth, float screenHeight)
         {
@@ -35,9 +29,9 @@ namespace Rendering.Core.Rendering
             this.screenHeight = screenHeight;
         }
 
-        public void Initialize(List<GLShape> shapeList)
+        public void Initialize(GLShape[] shapeList)
         {
-            shapes = shapeList;
+            Shapes = shapeList;
 
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
@@ -51,10 +45,10 @@ namespace Rendering.Core.Rendering
         private void InitializeBuffers()
         {
             List<float> allVertices = new List<float>();
-            foreach (GLShape shape in shapes)
+            foreach (GLShape shape in Shapes)
                 allVertices.AddRange(shape.Vertices);
             List<uint> allIndices = new List<uint>();
-            foreach (GLShape shape in shapes)
+            foreach (GLShape shape in Shapes)
                 allIndices.AddRange(shape.Indices);
 
             vertexBufferObject = GL.GenBuffer();
@@ -101,7 +95,7 @@ namespace Rendering.Core.Rendering
 
         public void InitializeCamera()
         {
-            camera = new Camera(Vector3.UnitZ * 3, screenWidth / screenHeight);
+            Camera = new Camera(Vector3.UnitZ * 3, screenWidth / screenHeight);
             ResetCamera();
         }
 
@@ -112,15 +106,15 @@ namespace Rendering.Core.Rendering
 
             GL.Viewport(0, 0, (int)width, (int)height);
 
-            if(camera != null) 
-                camera.AspectRatio = width / height;
+            if(Camera != null) 
+                Camera.AspectRatio = width / height;
         }
 
         public void ResetCamera()
         {
-            camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
-            camera.Pitch = 0;
-            camera.Yaw = -90;
+            Camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
+            Camera.Pitch = 0;
+            Camera.Yaw = -90;
         }
 
 
@@ -128,10 +122,10 @@ namespace Rendering.Core.Rendering
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            if (shapes == null || shapes.Count == 0)
+            if (Shapes == null || Shapes.Length == 0)
                 return;
 
-            foreach (GLShape shape in shapes)
+            foreach (GLShape shape in Shapes)
             {
                 foreach (var texture in shape.Textures)
                 {
@@ -143,12 +137,12 @@ namespace Rendering.Core.Rendering
 
                 ApplyModelTransforms(shape, out Matrix4 model);
                 shader.SetMatrix4("model", model);
-                shader.SetMatrix4("view", camera.GetViewMatrix());
+                shader.SetMatrix4("view", Camera.GetViewMatrix());
 
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
 
-            shader.SetMatrix4("projection", camera.GetProjectionMatrix());
+            shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
             shader.Use();
         }
 

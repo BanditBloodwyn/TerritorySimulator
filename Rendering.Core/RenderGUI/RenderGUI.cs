@@ -18,8 +18,6 @@ namespace Rendering.Core.RenderGUI
         private Point oldMousePosition;
         private Point newMousePosition;
 
-        private List<GLShape> shapes;
-
         public Func<string, bool> RasterizationChanged;
 
 
@@ -62,9 +60,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
-            CreateShapes();
-
-            renderer.Initialize(shapes);
+            renderer.Initialize(CreateShapes());
             renderer.InitializeCamera();
 
             renderer.Render();
@@ -169,9 +165,9 @@ namespace Rendering.Core.RenderGUI
         #endregion
 
 
-        private void CreateShapes()
+        private GLShape[] CreateShapes()
         {
-            shapes = new List<GLShape>();
+            List<GLShape> shapes = new List<GLShape>();
 
             var sphere = new GLSphere();
             sphere.Radius = 1.0f;
@@ -181,6 +177,8 @@ namespace Rendering.Core.RenderGUI
             shapes.Add(sphere);
 
             RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
+
+            return shapes.ToArray();
         }
 
         private void RefreshWindow()

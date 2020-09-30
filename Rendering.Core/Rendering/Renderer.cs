@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using Core.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -27,15 +25,19 @@ namespace Rendering.Core.Rendering
         private float screenWidth;
         private float screenHeight;
 
+        public Camera Camera { get; set; }
+
+        public GLShape[] Shapes => shapes.ToArray();
+
         public Renderer(float screenWidth, float screenHeight)
         {
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
         }
 
-        public void Initialize(List<GLShape> shapes)
+        public void Initialize(List<GLShape> shapeList)
         {
-            this.shapes = shapes;
+            shapes = shapeList;
 
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
@@ -73,6 +75,12 @@ namespace Rendering.Core.Rendering
 
         private void SetupShader()
         {
+            // shader
+            string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
+            string fragmentPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Fragment.frag");
+            shader = new Shader(vertexPath, fragmentPath);
+            shader.Use();
+
             int vertexLocation = shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
@@ -91,7 +99,7 @@ namespace Rendering.Core.Rendering
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
         }
 
-        private void InitializeCamera()
+        public void InitializeCamera()
         {
             camera = new Camera(Vector3.UnitZ * 3, screenWidth / screenHeight);
             ResetCamera();
@@ -104,10 +112,11 @@ namespace Rendering.Core.Rendering
 
             GL.Viewport(0, 0, (int)width, (int)height);
 
-            camera.AspectRatio = width / height;
+            if(camera != null) 
+                camera.AspectRatio = width / height;
         }
 
-        private void ResetCamera()
+        public void ResetCamera()
         {
             camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
             camera.Pitch = 0;
@@ -115,9 +124,12 @@ namespace Rendering.Core.Rendering
         }
 
 
-        private void Render()
+        public void Render()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            if (shapes == null || shapes.Count == 0)
+                return;
 
             foreach (GLShape shape in shapes)
             {
@@ -149,5 +161,18 @@ namespace Rendering.Core.Rendering
             model *= Matrix4.CreateTranslation(shape.PositionX, shape.PositionY, shape.PositionZ);
         }
 
+        public void Dispose()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            GL.UseProgram(0);
+
+            GL.DeleteBuffer(vertexBufferObject);
+            GL.DeleteVertexArray(vertexArrayObject);
+
+            GL.DeleteProgram(shader.Handle);
+            shader.Dispose();
+        }
     }
 }

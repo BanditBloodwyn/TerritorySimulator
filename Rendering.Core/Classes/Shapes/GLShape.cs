@@ -18,6 +18,12 @@ namespace Rendering.Core.Classes.Shapes
         public float PositionY { get; protected set; }
         public float PositionZ { get; protected set; }
 
+        public int VertexBufferSize => Vertices.Length * sizeof(float);
+        public int IndexBufferSize => Indices.Length * sizeof(int);
+
+        public int VertexArrayObject { get; set; }
+
+
         public Dictionary<Texture, TextureUnit> Textures { get; }
 
         public GLShape()
@@ -63,6 +69,5 @@ namespace Rendering.Core.Classes.Shapes
             PositionY = 0.0f;
             PositionZ = 0.0f;
         }
-
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Core.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -29,42 +29,58 @@ namespace Rendering.Core.Rendering
             this.screenHeight = screenHeight;
         }
 
-        public void Initialize(GLShape[] shapeList)
+        public void Initialize(GLShape[] shapeArray)
         {
-            Shapes = shapeList;
+            Shapes = shapeArray;
 
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
 
-            InitializeBuffers();
-            InitializeVertexArrayObject();
+            InitializeBuffers(Shapes);
+            InitializeVertexArrayObject(Shapes);
             SetupShader();
             BindBuffers();
         }
 
-        private void InitializeBuffers()
+        private void InitializeBuffers(GLShape[] shapeArray)
         {
-            List<float> allVertices = new List<float>();
-            foreach (GLShape shape in Shapes)
-                allVertices.AddRange(shape.Vertices);
-            List<uint> allIndices = new List<uint>();
-            foreach (GLShape shape in Shapes)
-                allIndices.AddRange(shape.Indices);
+            int vertexBufferSize = shapeArray.Sum(shape => shape.VertexBufferSize);
+            int indexBufferSize = shapeArray.Sum(shape => shape.IndexBufferSize);
 
+            // Vertex buffer
             vertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, allVertices.Count * sizeof(float), allVertices.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexBufferSize, IntPtr.Zero, BufferUsageHint.StaticDraw);
 
+            IntPtr offset = IntPtr.Zero;
+            foreach (GLShape shape in shapeArray)
+            {
+                GL.BufferSubData(BufferTarget.ArrayBuffer, offset, shape.VertexBufferSize, shape.Vertices);
+                offset += shape.VertexBufferSize;
+            }
+
+            // Element buffer
             elementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, allIndices.Count * sizeof(uint), allIndices.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBufferSize, IntPtr.Zero, BufferUsageHint.StaticDraw);
 
+            offset = IntPtr.Zero;
+            foreach (GLShape shape in shapeArray)
+            {
+                GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, shape.IndexBufferSize, shape.Indices);
+                offset += shape.IndexBufferSize;
+            }
         }
 
-        private void InitializeVertexArrayObject()
+        private void InitializeVertexArrayObject(GLShape[] shapeArray)
         {
             vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(vertexArrayObject);
+            //foreach (GLShape shape in shapeArray)
+            //{
+            //    shape.VertexArrayObject = GL.GenVertexArray();
+            //    GL.BindVertexArray(shape.VertexArrayObject);
+            //}
         }
 
         private void SetupShader()
@@ -77,11 +93,23 @@ namespace Rendering.Core.Rendering
 
             int vertexLocation = shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
-            GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+            GL.VertexAttribPointer(
+                vertexLocation, 
+                3, 
+                VertexAttribPointerType.Float, 
+                false, 
+                5 * sizeof(float), 
+                /*Shapes[0].VertexBufferSize*/0);
 
             int texCoordLocation = shader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
-            GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(
+                texCoordLocation, 
+                2, 
+                VertexAttribPointerType.Float, 
+                false, 
+                5 * sizeof(float), 
+                /*Shapes[0].VertexBufferSize + */3 * sizeof(float));
 
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
@@ -117,7 +145,6 @@ namespace Rendering.Core.Rendering
             Camera.Yaw = -90;
         }
 
-
         public void Render()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -125,6 +152,7 @@ namespace Rendering.Core.Rendering
             if (Shapes == null || Shapes.Length == 0)
                 return;
 
+            IntPtr offset = IntPtr.Zero;
             foreach (GLShape shape in Shapes)
             {
                 foreach (var texture in shape.Textures)
@@ -139,7 +167,8 @@ namespace Rendering.Core.Rendering
                 shader.SetMatrix4("model", model);
                 shader.SetMatrix4("view", Camera.GetViewMatrix());
 
-                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, offset);
+                offset += shape.IndexBufferSize;
             }
 
             shader.SetMatrix4("projection", Camera.GetProjectionMatrix());

@@ -73,7 +73,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            renderer.Camera.Position += renderer.Camera.Front * e.Delta * 0.001f;
+            renderer.Camera.Position += renderer.Camera.Front * e.Delta * 0.01f;
 
             RefreshWindow();
         }
@@ -177,12 +177,12 @@ namespace Rendering.Core.RenderGUI
             shapes.Add(earth);
             RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
-            var stars = new GLSphere();
-            stars.Radius = 100.0f;
-            stars.Rasterization = 128;
-            stars.SetTexture("Resources\\Textures\\stars.png");
-            stars.Rotate(90, 0, 0);
-            shapes.Add(stars);
+            //var stars = new GLSphere();
+            //stars.Radius = 100.0f;
+            //stars.Rasterization = 128;
+            //stars.SetTexture("Resources\\Textures\\stars.png");
+            //stars.Rotate(90, 0, 0);
+            //shapes.Add(stars);
 
             return shapes.ToArray();
         }

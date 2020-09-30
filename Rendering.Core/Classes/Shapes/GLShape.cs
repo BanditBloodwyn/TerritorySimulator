@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Rendering.Core.Classes.Shapes
 {
-    class GLShape
+    public class GLShape
     {
         public float[] Vertices { get; protected set; }
         public uint[] Indices { get; protected set; }

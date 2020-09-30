@@ -58,6 +58,7 @@
       <DependentUpon>RenderGUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Classes\Shaders\Shader.cs" />
+    <Compile Include="Rendering\Renderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenTK">
@@ -85,5 +86,6 @@
       <Name>Core.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

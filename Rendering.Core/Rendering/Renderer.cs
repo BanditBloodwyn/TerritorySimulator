@@ -50,9 +50,9 @@ namespace Rendering.Core.Rendering
             // Vertex buffer
             vertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertexBufferSize, IntPtr.Zero, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
-            IntPtr offset = IntPtr.Zero;
+            IntPtr offset = (IntPtr)0;
             foreach (GLShape shape in shapeArray)
             {
                 GL.BufferSubData(BufferTarget.ArrayBuffer, offset, shape.VertexBufferSize, shape.Vertices);
@@ -62,9 +62,9 @@ namespace Rendering.Core.Rendering
             // Element buffer
             elementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBufferSize, IntPtr.Zero, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
-            offset = IntPtr.Zero;
+            offset = (IntPtr)0;
             foreach (GLShape shape in shapeArray)
             {
                 GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, shape.IndexBufferSize, shape.Indices);
@@ -74,13 +74,13 @@ namespace Rendering.Core.Rendering
 
         private void InitializeVertexArrayObject(GLShape[] shapeArray)
         {
-            vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(vertexArrayObject);
-            //foreach (GLShape shape in shapeArray)
-            //{
-            //    shape.VertexArrayObject = GL.GenVertexArray();
-            //    GL.BindVertexArray(shape.VertexArrayObject);
-            //}
+            //vertexArrayObject = GL.GenVertexArray();
+            //GL.BindVertexArray(vertexArrayObject);
+            foreach (GLShape shape in shapeArray)
+            {
+                shape.VertexArrayObject = GL.GenVertexArray();
+                GL.BindVertexArray(shape.VertexArrayObject);
+            }
         }
 
         private void SetupShader()
@@ -152,7 +152,7 @@ namespace Rendering.Core.Rendering
             if (Shapes == null || Shapes.Length == 0)
                 return;
 
-            IntPtr offset = IntPtr.Zero;
+            IntPtr offset = (IntPtr)0;
             foreach (GLShape shape in Shapes)
             {
                 foreach (var texture in shape.Textures)

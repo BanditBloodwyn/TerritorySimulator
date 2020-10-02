@@ -6,6 +6,8 @@ namespace Rendering.Core.Classes.Shapes
 {
     public class GLShape
     {
+        public string Name { get; protected set; }
+
         public float[] Vertices { get; protected set; }
         public uint[] Indices { get; protected set; }
         public float[] Normals { get; protected set; }
@@ -26,8 +28,9 @@ namespace Rendering.Core.Classes.Shapes
 
         public Dictionary<Texture, TextureUnit> Textures { get; }
 
-        public GLShape()
+        public GLShape(string name)
         {
+            Name = name;
             Textures = new Dictionary<Texture, TextureUnit>();
             ResetRotation();
             ResetTranslation();

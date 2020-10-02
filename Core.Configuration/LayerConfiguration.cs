@@ -1,20 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace Core.Configuration
 {
     public static class LayerConfiguration
     {
+        public static event EventHandler LayersChanged;
+
         private static bool showEarthTexture = true;
 
         public static bool ShowEarthTexture
         {
             get => showEarthTexture;
-            set => showEarthTexture = value;
-        }
+            set
+            {
+                showEarthTexture = value;
+                LayersChanged?.Invoke(null, EventArgs.Empty);
+            }
+        } 
     }
 }

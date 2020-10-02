@@ -2,7 +2,8 @@
 {
     class GLQuadrilateral : GLShape
     {
-        public GLQuadrilateral(float length, float width)
+        public GLQuadrilateral(string name, float length, float width)
+            : base(name)
         {
             Vertices = new[]
             {

@@ -2,7 +2,8 @@
 {
     class GLCube : GLShape
     {
-        public GLCube(float length, float width, float height)
+        public GLCube(string name, float length, float width, float height) 
+            : base(name)
         {
             Vertices = new[]
             {

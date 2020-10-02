@@ -32,7 +32,8 @@ namespace Rendering.Core.Classes.Shapes
             }
         }
 
-        public GLSphere()
+        public GLSphere(string name) 
+            : base(name)
         {
             radius = 1;
             rasterization = 10;

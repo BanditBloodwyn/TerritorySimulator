@@ -14,7 +14,6 @@ namespace Rendering.Core.Rendering
     {
         private Shader shader;
         private int vertexBufferObject;
-        private int vertexArrayObject;
         private int elementBufferObject;
 
         private float screenWidth;
@@ -27,6 +26,7 @@ namespace Rendering.Core.Rendering
         {
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
+
         }
 
         public void Initialize(GLShape[] shapeArray)
@@ -78,8 +78,6 @@ namespace Rendering.Core.Rendering
 
         private void InitializeVertexArrayObject(GLShape[] shapeArray)
         {
-            //vertexArrayObject = GL.GenVertexArray();
-            //GL.BindVertexArray(vertexArrayObject);
             foreach (GLShape shape in shapeArray)
             {
                 shape.VertexArrayObject = GL.GenVertexArray();
@@ -103,7 +101,7 @@ namespace Rendering.Core.Rendering
                 VertexAttribPointerType.Float, 
                 false, 
                 5 * sizeof(float), 
-                /*Shapes[0].VertexBufferSize*/0);
+                0);
 
             int texCoordLocation = shader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
@@ -113,7 +111,7 @@ namespace Rendering.Core.Rendering
                 VertexAttribPointerType.Float, 
                 false, 
                 5 * sizeof(float), 
-                /*Shapes[0].VertexBufferSize + */3 * sizeof(float));
+                3 * sizeof(float));
 
             shader.SetInt("texture0", 0);
             shader.SetInt("texture1", 1);
@@ -159,13 +157,7 @@ namespace Rendering.Core.Rendering
             IntPtr offset = (IntPtr)0;
             foreach (GLShape shape in Shapes)
             {
-                foreach (var texture in shape.Textures)
-                {
-                    if (LayerConfiguration.ShowEarthTexture)
-                        texture.Key.Use(texture.Value);
-                    else
-                        texture.Key.MakeTransparent(texture.Value);
-                }
+                ApplyTextures(shape);
 
                 ApplyModelTransforms(shape, out Matrix4 model);
                 shader.SetMatrix4("model", model);
@@ -177,6 +169,17 @@ namespace Rendering.Core.Rendering
 
             shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
             shader.Use();
+        }
+
+        private void ApplyTextures(GLShape shape)
+        {
+            foreach (var texture in shape.Textures)
+            {
+                if (shape.Name != "earth" || LayerConfiguration.ShowEarthTexture)
+                    texture.Key.Use(texture.Value);
+                else
+                    texture.Key.MakeTransparent(texture.Value);
+            }
         }
 
         private void ApplyModelTransforms(GLShape shape, out Matrix4 model)
@@ -196,7 +199,11 @@ namespace Rendering.Core.Rendering
             GL.UseProgram(0);
 
             GL.DeleteBuffer(vertexBufferObject);
-            GL.DeleteVertexArray(vertexArrayObject);
+
+            foreach (GLShape shape in Shapes)
+            {
+                GL.DeleteVertexArray(shape.VertexArrayObject);
+            }
 
             GL.DeleteProgram(shader.Handle);
             shader.Dispose();

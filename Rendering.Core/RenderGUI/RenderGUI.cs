@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
+using Core.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shapes;
@@ -27,6 +28,13 @@ namespace Rendering.Core.RenderGUI
             CreateGLControl();
 
             renderer = new Renderer(glControl.Width, glControl.Height);
+
+            LayerConfiguration.LayersChanged += LayersChanged;
+        }
+
+        private void LayersChanged(object sender, EventArgs e)
+        {
+            RefreshWindow();
         }
 
         private void CreateGLControl()
@@ -119,31 +127,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-                foreach (var glShape in renderer.Shapes)
-                {
-                    var sphere = (GLSphere)glShape;
-                    sphere.Rasterization += 1;
 
-                    RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
-
-                    GL.BufferData(BufferTarget.ArrayBuffer, sphere.Vertices.Length * sizeof(float), sphere.Vertices, BufferUsageHint.StaticDraw);
-                    GL.BufferData(BufferTarget.ElementArrayBuffer, sphere.Indices.Length * sizeof(uint), sphere.Indices, BufferUsageHint.StaticDraw);
-                }
-
-            if (e.KeyCode == Keys.Space)
-                foreach (var glShape in renderer.Shapes)
-                {
-                    var sphere = (GLSphere)glShape;
-                    sphere.Rasterization -= 1;
-
-                    RasterizationChanged?.Invoke(sphere.Rasterization.ToString());
-
-                    GL.BufferData(BufferTarget.ArrayBuffer, sphere.Vertices.Length * sizeof(float), sphere.Vertices, BufferUsageHint.StaticDraw);
-                    GL.BufferData(BufferTarget.ElementArrayBuffer, sphere.Indices.Length * sizeof(uint), sphere.Indices, BufferUsageHint.StaticDraw);
-                }
-
-            RefreshWindow();
         }
 
         #endregion
@@ -169,17 +153,17 @@ namespace Rendering.Core.RenderGUI
         {
             List<GLShape> shapes = new List<GLShape>();
 
-            var earth = new GLSphere();
+            var earth = new GLSphere("earth");
             earth.Radius = 1.0f;
-            earth.Rasterization = 128;
+            earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth.jpg");
             earth.Rotate(90, 0, 0);
             shapes.Add(earth);
             RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
-            var stars = new GLSphere();
-            stars.Radius = 10.0f;
-            stars.Rasterization = 128;
+            var stars = new GLSphere("space");
+            stars.Radius = 100.0f;
+            stars.Rasterization = 256;
             stars.SetTexture("Resources\\Textures\\stars.png");
             stars.Rotate(90, 0, 0);
             shapes.Add(stars);

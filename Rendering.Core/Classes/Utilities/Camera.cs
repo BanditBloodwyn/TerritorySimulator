@@ -14,6 +14,11 @@ namespace Rendering.Core.Classes.Utilities
         private Vector3 _up = Vector3.UnitY;
         private Vector3 _right = Vector3.UnitX;
 
+        public float MaxHeight { get; set; }
+        public float MinHeight { get; set; }
+
+        public float Height => (float)Math.Sqrt(Position[0] * Position[0] + Position[1] * Position[1] + Position[2] * Position[2]);
+
         // The position of the camera
         public Vector3 Position { get; set; }
 
@@ -100,6 +105,23 @@ namespace Rendering.Core.Classes.Utilities
             // not be what you need for all cameras so keep this in mind if you do not want a FPS camera
             _right = Vector3.Normalize(Vector3.Cross(_front, Vector3.UnitY));
             _up = Vector3.Normalize(Vector3.Cross(_right, _front));
+        }
+
+        public void Zoom(int delta)
+        {
+            float difference = 0;
+
+            if (delta > 0)
+                difference = Math.Abs(Height - MinHeight);
+            if (delta < 0)
+                difference = Math.Abs(Height - MaxHeight);
+
+            if (difference > 1)
+                difference = 1;
+
+            Vector3 moving = Front * delta * 0.002f * difference;
+
+            Position += moving;
         }
     }
 }

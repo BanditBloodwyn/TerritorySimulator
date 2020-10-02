@@ -80,8 +80,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            renderer.Camera.Position += renderer.Camera.Front * e.Delta * 0.01f;
-
+            renderer.Camera.Zoom(e.Delta);
             RefreshWindow();
         }
 

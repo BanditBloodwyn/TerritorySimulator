@@ -53,14 +53,10 @@ namespace Rendering.Core.Rendering
             GL.BufferData(BufferTarget.ArrayBuffer, vertexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
             IntPtr offset = (IntPtr)0;
-            int firstVertexIndex = 0;
             foreach (GLShape shape in shapeArray)
             {
-                var indexArray = shape.Indices.Select(index => index + firstVertexIndex).ToArray(); 
-                
-                GL.BufferSubData(BufferTarget.ArrayBuffer, offset, shape.VertexBufferSize, indexArray);
+                GL.BufferSubData(BufferTarget.ArrayBuffer, offset, shape.VertexBufferSize, shape.Vertices);
                 offset += shape.VertexBufferSize;
-                firstVertexIndex += shape.VertexBufferSize / (5 * sizeof(float));
             }
 
             // Element buffer
@@ -69,14 +65,14 @@ namespace Rendering.Core.Rendering
             GL.BufferData(BufferTarget.ElementArrayBuffer, indexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
             offset = (IntPtr)0;
-            int firstIndexIndex = 0;
+            uint firstVertexIndex = 0;
             foreach (GLShape shape in shapeArray)
             {
-                var indexArray = shape.Indices.Select(index => index + firstIndexIndex).ToArray();
+                var indexArray = shape.Indices.Select(index => index + firstVertexIndex).ToArray();
 
                 GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, shape.IndexBufferSize, indexArray);
                 offset += shape.IndexBufferSize;
-                firstIndexIndex += shape.IndexBufferSize / (3 * sizeof(float));
+                firstVertexIndex += (uint)(shape.VertexBufferSize / (5 * sizeof(float)));
             }
         }
 

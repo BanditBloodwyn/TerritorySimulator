@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Collections.Generic;
 using Core.Configuration;
 using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Rendering;
 
@@ -162,9 +161,9 @@ namespace Rendering.Core.RenderGUI
             RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
             var stars = new GLSphere("space");
-            stars.Radius = 100.0f;
+            stars.Radius = 500.0f;
             stars.Rasterization = 256;
-            stars.SetTexture("Resources\\Textures\\stars.png");
+            stars.SetTexture("Resources\\Textures\\milky_way.jpg");
             stars.Rotate(90, 0, 0);
             shapes.Add(stars);
 

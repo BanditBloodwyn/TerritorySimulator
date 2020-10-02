@@ -86,8 +86,10 @@
       <Name>Core.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Resources\Textures\" />
+    <Content Include="Resources\Textures\earth.jpg" />
+    <Content Include="Resources\Textures\stars.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

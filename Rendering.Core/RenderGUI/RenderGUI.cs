@@ -90,32 +90,11 @@ namespace Rendering.Core.RenderGUI
 
             if (e.Button == MouseButtons.Left)
             {
-                foreach (GLShape shape in renderer.Shapes)
-                {
-                    float deltaX = (oldMousePosition.Y - newMousePosition.Y) * 0.1f;
-                    float deltaY = (oldMousePosition.X - newMousePosition.X) * 0.1f;
+                float deltaX = (oldMousePosition.Y - newMousePosition.Y) * 0.1f;
+                float deltaY = (oldMousePosition.X - newMousePosition.X) * 0.1f;
 
-                    shape.Rotate(deltaX, deltaY, 0);
-                }
-                RefreshWindow();
-            }
-
-            if (e.Button == MouseButtons.Right)
-            {
-                float deltaPitch = (newMousePosition.Y - oldMousePosition.Y) * 0.05f;
-                float deltaYaw = (newMousePosition.X - oldMousePosition.X) * 0.05f;
-
-                renderer.Camera.Yaw -= deltaYaw;
-                renderer.Camera.Pitch += deltaPitch;
-
-                RefreshWindow();
-            }
-
-
-            if (e.Button == MouseButtons.Middle)
-            {
-                renderer.Camera.Position += renderer.Camera.Up * (newMousePosition.Y - oldMousePosition.Y) * 0.001f;
-                renderer.Camera.Position -= renderer.Camera.Right * (newMousePosition.X - oldMousePosition.X) * 0.001f;
+                renderer.Camera.Latitude += deltaX * 0.01f;
+                renderer.Camera.Longitude -= deltaY * 0.01f;
 
                 RefreshWindow();
             }
@@ -155,7 +134,6 @@ namespace Rendering.Core.RenderGUI
             earth.Radius = 1.0f;
             earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth.jpg");
-            earth.Rotate(90, 0, 0);
             shapes.Add(earth);
             RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 

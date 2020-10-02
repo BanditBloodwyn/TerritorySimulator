@@ -61,7 +61,7 @@ namespace Rendering.Core.Classes.Shapes
 
         public void ResetRotation()
         {
-            AngleX = 0.0f;
+            AngleX = 90.0f;
             AngleY = 0.0f;
             AngleZ = 0.0f;
         }

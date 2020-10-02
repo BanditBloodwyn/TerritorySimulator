@@ -125,9 +125,9 @@ namespace Rendering.Core.Rendering
 
         public void InitializeCamera()
         {
-            Camera = new Camera(Vector3.UnitZ * 3, screenWidth / screenHeight);
+            Camera = new Camera(0, 0, 3, screenWidth / screenHeight);
             Camera.MinHeight = 1.3f;
-            Camera.MaxHeight = 10.0f;
+            Camera.MaxHeight = 5.0f;
             ResetCamera();
         }
 
@@ -144,9 +144,9 @@ namespace Rendering.Core.Rendering
 
         public void ResetCamera()
         {
-            Camera.Position = new Vector3(0.0f, 0.0f, 3.0f);
-            Camera.Pitch = 0;
-            Camera.Yaw = -90;
+            Camera.Longitude = 0;
+            Camera.Latitude = 0;
+            Camera.Height = 3;
         }
 
         public void Render()

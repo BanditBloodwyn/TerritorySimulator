@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using Core.Configuration;
 using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 
@@ -11,9 +10,12 @@ namespace Rendering.Core.Classes
     {
         public int Handle { get; set; }
         public bool Visible { get; set; }
+        public  TextureUnit Unit { get; private set; }
 
-        public Texture(string path)
+        public Texture(string path, TextureUnit unit = TextureUnit.Texture0)
         {
+            Unit = unit;
+
             Handle = GL.GenTexture();
             Use();
 
@@ -44,16 +46,10 @@ namespace Rendering.Core.Classes
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
         }
 
-        public void Use(TextureUnit unit = TextureUnit.Texture0)
+        public void Use()
         {
-            GL.ActiveTexture(unit);
+            GL.ActiveTexture(Unit);
             GL.BindTexture(TextureTarget.Texture2D, Handle);
-        }
-
-        public void MakeTransparent(TextureUnit unit = TextureUnit.Texture0)
-        {
-            GL.ActiveTexture(unit);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
     }
 }

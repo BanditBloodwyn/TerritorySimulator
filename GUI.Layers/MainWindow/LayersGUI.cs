@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Core.Configuration;
 
 namespace GUI.Layers.MainWindow
@@ -23,13 +15,20 @@ namespace GUI.Layers.MainWindow
         {
             tvFilter.BeginUpdate();
             tvFilter.Nodes.Add("Earth Texture");
-            tvFilter.Nodes[0].Checked = LayerConfiguration.ShowEarthTexture;
 
             tvFilter.Nodes.Add("Clouds");
             tvFilter.Nodes.Add("Grid");
             tvFilter.Nodes[2].Nodes.Add("Lines");
             tvFilter.Nodes[2].Nodes.Add("Color coding");
             tvFilter.EndUpdate();
+
+            SetDefaults();
+        }
+
+        private void SetDefaults()
+        {
+            tvFilter.Nodes[0].Checked = LayerConfiguration.ShowEarthTexture;
+            tvFilter.Nodes[1].Checked = LayerConfiguration.ShowCloudTexture;
         }
 
         private void tvFilter_AfterCheck(object sender, TreeViewEventArgs e)
@@ -47,6 +46,7 @@ namespace GUI.Layers.MainWindow
             }
 
             LayerConfiguration.ShowEarthTexture = tvFilter.Nodes[0].Checked;
+            LayerConfiguration.ShowCloudTexture = tvFilter.Nodes[1].Checked;
         }
     }
 }

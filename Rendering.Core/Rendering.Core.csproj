@@ -49,6 +49,7 @@
     <Compile Include="Classes\Shapes\GLSphere.cs" />
     <Compile Include="Classes\Shapes\GLTriangle.cs" />
     <Compile Include="Classes\Texture.cs" />
+    <Compile Include="Classes\TextureType.cs" />
     <Compile Include="Classes\Utilities\Camera.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderGUI\RenderGUI.cs">

@@ -8,6 +8,7 @@ namespace Core.Configuration
         public static event EventHandler LayersChanged;
 
         private static bool showEarthTexture = true;
+        private static bool showCloudTexture = true;
 
         public static bool ShowEarthTexture
         {
@@ -17,6 +18,16 @@ namespace Core.Configuration
                 showEarthTexture = value;
                 LayersChanged?.Invoke(null, EventArgs.Empty);
             }
-        } 
+        }
+
+        public static bool ShowCloudTexture
+        {
+            get => showCloudTexture;
+            set
+            {
+                showCloudTexture = value;
+                LayersChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
     }
 }

@@ -83,7 +83,7 @@ namespace Rendering.Core.Classes.Utilities
         // Get the projection matrix using the same method we have used up until this point
         public Matrix4 GetProjectionMatrix()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(fovRadian, AspectRatio, 0.01f, 1000f);
+            return Matrix4.CreatePerspectiveFieldOfView(fovRadian, AspectRatio, 0.01f, 10000f);
         }
 
         public void Zoom(int delta)
@@ -98,7 +98,7 @@ namespace Rendering.Core.Classes.Utilities
             if (difference > 1)
                 difference = 1;
 
-            float moving = delta * 0.002f * difference;
+            float moving = delta * 0.005f * difference;
 
             _height -= moving;
 

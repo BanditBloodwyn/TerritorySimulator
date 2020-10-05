@@ -26,23 +26,25 @@ namespace Rendering.Core.Classes.Shapes
         public int VertexArrayObject { get; set; }
 
 
-        public Dictionary<Texture, TextureUnit> Textures { get; }
+        public Dictionary<TextureType, Texture> Textures { get; }
 
         public GLShape(string name)
         {
             Name = name;
-            Textures = new Dictionary<Texture, TextureUnit>();
+            Textures = new Dictionary<TextureType, Texture>();
             ResetRotation();
             ResetTranslation();
+
+            SetTexture("Resources\\Textures\\transparent.png", TextureType.Invisible);
         }
 
 
-        public void SetTexture(string path, TextureUnit unit = TextureUnit.Texture0)
+        public void SetTexture(string path, TextureType type = TextureType.Visible, TextureUnit unit = TextureUnit.Texture0)
         {
-            Texture texture = new Texture(path);
-            texture.Use(unit);
+            Texture texture = new Texture(path, unit);
+            texture.Use();
 
-            Textures.Add(texture, unit);
+            Textures.Add(type, texture);
         }
 
         public void Rotate(float deltaX, float deltaY, float deltaZ)

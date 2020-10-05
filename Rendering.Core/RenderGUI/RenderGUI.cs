@@ -131,17 +131,22 @@ namespace Rendering.Core.RenderGUI
             List<GLShape> shapes = new List<GLShape>();
 
             var earth = new GLSphere("earth");
-            earth.Radius = 1.0f;
+            earth.Radius = 20.0f;
             earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth.jpg");
             shapes.Add(earth);
             RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
+            var earthClouds = new GLSphere("earthClouds");
+            earthClouds.Radius = 20.1f;
+            earthClouds.Rasterization = 256;
+            earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png");
+            shapes.Add(earthClouds);
+
             var stars = new GLSphere("space");
-            stars.Radius = 500.0f;
+            stars.Radius = 8000.0f;
             stars.Rasterization = 256;
             stars.SetTexture("Resources\\Textures\\milky_way.jpg");
-            stars.Rotate(90, 0, 0);
             shapes.Add(stars);
 
             return shapes.ToArray();

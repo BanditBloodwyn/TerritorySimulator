@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Configuration;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shaders;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
@@ -34,6 +35,9 @@ namespace Rendering.Core.Rendering
             Shapes = shapeArray;
 
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
             GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
 
             InitializeBuffers(Shapes);
@@ -96,21 +100,21 @@ namespace Rendering.Core.Rendering
             int vertexLocation = shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(
-                vertexLocation, 
-                3, 
-                VertexAttribPointerType.Float, 
-                false, 
-                5 * sizeof(float), 
+                vertexLocation,
+                3,
+                VertexAttribPointerType.Float,
+                false,
+                5 * sizeof(float),
                 0);
 
             int texCoordLocation = shader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(
-                texCoordLocation, 
-                2, 
-                VertexAttribPointerType.Float, 
-                false, 
-                5 * sizeof(float), 
+                texCoordLocation,
+                2,
+                VertexAttribPointerType.Float,
+                false,
+                5 * sizeof(float),
                 3 * sizeof(float));
 
             shader.SetInt("texture0", 0);
@@ -125,9 +129,9 @@ namespace Rendering.Core.Rendering
 
         public void InitializeCamera()
         {
-            Camera = new Camera(0, 0, 3, screenWidth / screenHeight);
-            Camera.MinHeight = 1.3f;
-            Camera.MaxHeight = 5.0f;
+            Camera = new Camera(0, 0, 50, screenWidth / screenHeight);
+            Camera.MinHeight = 25.0f;
+            Camera.MaxHeight = 70.0f;
             ResetCamera();
         }
 
@@ -138,7 +142,7 @@ namespace Rendering.Core.Rendering
 
             GL.Viewport(0, 0, (int)width, (int)height);
 
-            if(Camera != null) 
+            if (Camera != null)
                 Camera.AspectRatio = width / height;
         }
 
@@ -146,7 +150,7 @@ namespace Rendering.Core.Rendering
         {
             Camera.Longitude = 0;
             Camera.Latitude = 0;
-            Camera.Height = 3;
+            Camera.Height = 50;
         }
 
         public void Render()
@@ -175,12 +179,27 @@ namespace Rendering.Core.Rendering
 
         private void ApplyTextures(GLShape shape)
         {
-            foreach (var texture in shape.Textures)
+            switch (shape.Name)
             {
-                if (shape.Name != "earth" || LayerConfiguration.ShowEarthTexture)
-                    texture.Key.Use(texture.Value);
-                else
-                    texture.Key.MakeTransparent(texture.Value);
+                case "earth":
+                {
+                    if (LayerConfiguration.ShowEarthTexture)
+                        shape.Textures[TextureType.Visible].Use();
+                    else
+                        shape.Textures[TextureType.Invisible].Use();
+                    break;
+                }
+                case "earthClouds":
+                {
+                    if (LayerConfiguration.ShowCloudTexture)
+                        shape.Textures[TextureType.Visible].Use();
+                    else
+                        shape.Textures[TextureType.Invisible].Use();
+                    break;
+                }
+                default:
+                    shape.Textures[TextureType.Visible].Use();
+                    break;
             }
         }
 

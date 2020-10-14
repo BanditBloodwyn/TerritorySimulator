@@ -10,7 +10,6 @@ namespace Rendering.Core.Classes.Shapes
 
         public float[] Vertices { get; protected set; }
         public uint[] Indices { get; protected set; }
-        public float[] Normals { get; protected set; }
 
         public float AngleX { get; protected set; }
         public float AngleY { get; protected set; }

@@ -9,7 +9,6 @@ namespace Rendering.Core.Classes
     public class Texture
     {
         public int Handle { get; set; }
-        public bool Visible { get; set; }
         public  TextureUnit Unit { get; private set; }
 
         public Texture(string path, TextureUnit unit = TextureUnit.Texture0)

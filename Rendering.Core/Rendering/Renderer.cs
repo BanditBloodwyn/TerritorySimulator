@@ -27,7 +27,6 @@ namespace Rendering.Core.Rendering
         {
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
-
         }
 
         public void Initialize(GLShape[] shapeArray)

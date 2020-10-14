@@ -9,6 +9,8 @@ namespace Rendering.Core.Classes
     public enum TextureType
     {
         Visible,
-        Invisible
+        Invisible,
+        DiffuseMap,
+        SpecularMap
     }
 }

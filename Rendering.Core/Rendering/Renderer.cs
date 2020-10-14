@@ -13,7 +13,7 @@ namespace Rendering.Core.Rendering
 {
     public class Renderer
     {
-        private Shader shader;
+        private Shader objectShader;
         private int vertexBufferObject;
         private int elementBufferObject;
 
@@ -42,7 +42,7 @@ namespace Rendering.Core.Rendering
 
             InitializeBuffers(Shapes);
             InitializeVertexArrayObject(Shapes);
-            SetupShader();
+            SetupShaders();
             BindBuffers();
         }
 
@@ -76,7 +76,7 @@ namespace Rendering.Core.Rendering
 
                 GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, shape.IndexBufferSize, indexArray);
                 offset += shape.IndexBufferSize;
-                firstVertexIndex += (uint)(shape.VertexBufferSize / (5 * sizeof(float)));
+                firstVertexIndex += (uint)(shape.VertexBufferSize / (8 * sizeof(float)));
             }
         }
 
@@ -89,36 +89,46 @@ namespace Rendering.Core.Rendering
             }
         }
 
-        private void SetupShader()
+        private void SetupShaders()
         {
-            // shader
+            SetupObjectShader();
+            SetupLightingShader();
+        }
+
+        private void SetupLightingShader()
+        {
+        }
+
+        private void SetupObjectShader()
+        {
             string vertexPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Vertex.vert");
             string fragmentPath = Path.Combine(Environment.CurrentDirectory, @"GLSL\", "Fragment.frag");
-            shader = new Shader(vertexPath, fragmentPath);
-            shader.Use();
 
-            int vertexLocation = shader.GetAttribLocation("aPosition");
+            objectShader = new Shader(vertexPath, fragmentPath);
+            objectShader.Use();
+
+            int vertexLocation = objectShader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(
                 vertexLocation,
                 3,
                 VertexAttribPointerType.Float,
                 false,
-                5 * sizeof(float),
+                8 * sizeof(float),
                 0);
 
-            int texCoordLocation = shader.GetAttribLocation("aTexCoord");
+            int texCoordLocation = objectShader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(
                 texCoordLocation,
                 2,
                 VertexAttribPointerType.Float,
                 false,
-                5 * sizeof(float),
-                3 * sizeof(float));
+                8 * sizeof(float),
+                6 * sizeof(float));
 
-            shader.SetInt("texture0", 0);
-            shader.SetInt("texture1", 1);
+            objectShader.SetInt("texture0", 0);
+            objectShader.SetInt("texture1", 1);
         }
 
         private void BindBuffers()
@@ -166,15 +176,15 @@ namespace Rendering.Core.Rendering
                 ApplyTextures(shape);
 
                 ApplyModelTransforms(shape, out Matrix4 model);
-                shader.SetMatrix4("model", model);
-                shader.SetMatrix4("view", Camera.GetViewMatrix());
+                objectShader.SetMatrix4("model", model);
+                objectShader.SetMatrix4("view", Camera.GetViewMatrix());
 
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, offset);
                 offset += shape.IndexBufferSize;
             }
 
-            shader.SetMatrix4("projection", Camera.GetProjectionMatrix());
-            shader.Use();
+            objectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
+            objectShader.Use();
         }
 
         private void ApplyTextures(GLShape shape)
@@ -226,8 +236,8 @@ namespace Rendering.Core.Rendering
                 GL.DeleteVertexArray(shape.VertexArrayObject);
             }
 
-            GL.DeleteProgram(shader.Handle);
-            shader.Dispose();
+            GL.DeleteProgram(objectShader.Handle);
+            objectShader.Dispose();
         }
     }
 }

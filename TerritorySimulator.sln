@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.Core", "Rendering
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Configuration", "Core.Configuration\Core.Configuration.csproj", "{B005A888-AADB-448F-B292-04A32E6552A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering.SceneManagement", "Rendering.SceneManagement\Rendering.SceneManagement.csproj", "{27E5B35B-1468-408A-8BB7-5C73449B31C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{B005A888-AADB-448F-B292-04A32E6552A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B005A888-AADB-448F-B292-04A32E6552A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B005A888-AADB-448F-B292-04A32E6552A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27E5B35B-1468-408A-8BB7-5C73449B31C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27E5B35B-1468-408A-8BB7-5C73449B31C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27E5B35B-1468-408A-8BB7-5C73449B31C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27E5B35B-1468-408A-8BB7-5C73449B31C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{FE85DDDF-C040-4BF1-BB4A-D35C62AAD226} = {31323DC2-5025-40D3-9D81-042630CE2672}
 		{22FDA43A-58CF-4CAA-884A-AFCC345EB9A3} = {D80F606C-4B86-489A-A61D-AF0904B330BE}
 		{B005A888-AADB-448F-B292-04A32E6552A5} = {E3A2B84D-6C97-4C73-8C8F-F1010C54F523}
+		{27E5B35B-1468-408A-8BB7-5C73449B31C5} = {D80F606C-4B86-489A-A61D-AF0904B330BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D9D0D3DD-A755-42A9-B04A-BD415444F4BE}

@@ -56,9 +56,9 @@ namespace Rendering.Core.Classes.Shapes
                     float textureX = (float)j / rasterization;
                     float textureY = (float)i / rasterization * 2;
 
-                     Vector3 normals = CreateNormal(x, y, z);
+                    Vector3 normal = CreateNormal(x, y, z);
 
-                    vertices.AddRange(new[] { x, y, z, normals[0], normals[1], normals[2], textureX, textureY });
+                    vertices.AddRange(new[] { x, y, z, normal[0], normal[1], normal[2], textureX, textureY });
                 }
             }
 

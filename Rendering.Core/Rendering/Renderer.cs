@@ -116,6 +116,17 @@ namespace Rendering.Core.Rendering
                 8 * sizeof(float),
                 0);
 
+            int normCoordLocation = objectShader.GetAttribLocation("aNormal");
+            GL.EnableVertexAttribArray(normCoordLocation);
+            GL.VertexAttribPointer(
+                normCoordLocation,
+                3,
+                VertexAttribPointerType.Float,
+                false,
+                8 * sizeof(float),
+                3 * sizeof(float));
+
+
             int texCoordLocation = objectShader.GetAttribLocation("aTexCoord");
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(
@@ -139,7 +150,7 @@ namespace Rendering.Core.Rendering
         public void InitializeCamera()
         {
             Camera = new Camera(0, 0, 50, screenWidth / screenHeight);
-            Camera.MinHeight = 25.0f;
+            Camera.MinHeight = 05.0f;
             Camera.MaxHeight = 70.0f;
             ResetCamera();
         }
@@ -176,12 +187,21 @@ namespace Rendering.Core.Rendering
 
                 ApplyModelTransforms(shape, out Matrix4 model);
                 objectShader.SetMatrix4("model", model);
-                objectShader.SetMatrix4("view", Camera.GetViewMatrix());
 
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, offset);
                 offset += shape.IndexBufferSize;
             }
+           
+            objectShader.SetVector3("material.ambient", new Vector3(1.0f, 0.5f, 0.31f));
+            objectShader.SetVector3("material.diffuse", new Vector3(1.0f, 0.5f, 0.31f));
+            objectShader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
 
+            objectShader.SetVector3("light.position", new Vector3(100f, 1.0f, 2.0f));
+            objectShader.SetVector3("light.ambient", new Vector3(1.0f));
+            objectShader.SetVector3("light.diffuse", new Vector3(0.5f));
+            objectShader.SetVector3("light.specular", new Vector3(1.0f));
+
+            objectShader.SetMatrix4("view", Camera.GetViewMatrix());
             objectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
             objectShader.Use();
         }

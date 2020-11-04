@@ -1,5 +1,6 @@
 ﻿namespace Rendering.Core.Classes.Shapes
 {
+    // TODO: Add normal calculation
     class GLCube : GLShape
     {
         public GLCube(string name, float length, float width, float height) 

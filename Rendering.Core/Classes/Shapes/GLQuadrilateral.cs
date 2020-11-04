@@ -1,5 +1,6 @@
 ﻿namespace Rendering.Core.Classes.Shapes
 {
+    // TODO: Add normal calculation
     class GLQuadrilateral : GLShape
     {
         public GLQuadrilateral(string name, float length, float width)

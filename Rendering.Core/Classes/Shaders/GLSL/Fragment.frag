@@ -1,8 +1,8 @@
 ﻿#version 420 core
 
-in vec3 normal;
-in vec2 texCoord;
 in vec3 FragPos;
+in vec3 Normal;
+in vec2 texCoord;
 
 out vec4 FragColor;
 
@@ -23,23 +23,25 @@ struct Light {
 
 uniform Material material;
 uniform Light light;
+uniform vec3 viewPos;
 
 void main()
 {
 	// Ambient
 	vec3 ambient = light.ambient * vec3(texture(material.diffuse, texCoord));
-	
+
     // Diffuse 
-    vec3 norm = normalize(normal);
+    vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(vec3(light.position - FragPos));
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, texCoord));
-    	
-	vec3 result = ambient + diffuse;
-	
-    //if(result.a < 0.1)
-    //    discard;
 
-    
+    // Specular
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, texCoord));
+
+	vec3 result = ambient + diffuse + specular;    
     FragColor = vec4(result, 1.0);
 }

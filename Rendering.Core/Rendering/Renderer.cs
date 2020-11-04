@@ -34,10 +34,12 @@ namespace Rendering.Core.Rendering
             Shapes = shapeArray;
 
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Lighting);
 
-            GL.ClearColor(0.0f, 0.0f, 0.10f, 1.0f);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+            GL.Enable(EnableCap.Blend);
+
+            GL.ClearColor(0.0f, 0.0f, 0.00f, 0.0f);
 
             InitializeBuffers(Shapes);
             InitializeVertexArrayObject(Shapes);
@@ -149,9 +151,11 @@ namespace Rendering.Core.Rendering
 
         public void InitializeCamera()
         {
-            Camera = new Camera(0, 0, 50, screenWidth / screenHeight);
-            Camera.MinHeight = 05.0f;
-            Camera.MaxHeight = 70.0f;
+            Camera = new Camera(0, 0, 50, screenWidth / screenHeight)
+            {
+                MinHeight = 25.0f,
+                MaxHeight = 70.0f
+            };
             ResetCamera();
         }
 
@@ -191,19 +195,23 @@ namespace Rendering.Core.Rendering
                 GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, offset);
                 offset += shape.IndexBufferSize;
             }
-           
-            objectShader.SetVector3("material.ambient", new Vector3(1.0f, 0.5f, 0.31f));
-            objectShader.SetVector3("material.diffuse", new Vector3(1.0f, 0.5f, 0.31f));
-            objectShader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
 
-            objectShader.SetVector3("light.position", new Vector3(100f, 1.0f, 2.0f));
-            objectShader.SetVector3("light.ambient", new Vector3(1.0f));
-            objectShader.SetVector3("light.diffuse", new Vector3(0.5f));
+            objectShader.Use();
+
+            objectShader.SetVector3("viewPos", Camera.Position);
+
+            objectShader.SetInt("material.diffuse", 0);
+            objectShader.SetInt("material.specular", 0);
+            objectShader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+            objectShader.SetFloat("material.shininess", 32.0f);
+
+            objectShader.SetVector3("light.position", new Vector3(-1000.0f, 1.0f, 0.0f));
+            objectShader.SetVector3("light.ambient", new Vector3(0.005f));
+            objectShader.SetVector3("light.diffuse", new Vector3(1.5f));
             objectShader.SetVector3("light.specular", new Vector3(1.0f));
 
             objectShader.SetMatrix4("view", Camera.GetViewMatrix());
             objectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
-            objectShader.Use();
         }
 
         private void ApplyTextures(GLShape shape)

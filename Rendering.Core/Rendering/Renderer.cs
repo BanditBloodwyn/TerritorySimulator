@@ -34,10 +34,9 @@ namespace Rendering.Core.Rendering
             Shapes = shapeArray;
 
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Lighting);
 
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
             GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             GL.ClearColor(0.0f, 0.0f, 0.00f, 0.0f);
 
@@ -93,11 +92,6 @@ namespace Rendering.Core.Rendering
         private void SetupShaders()
         {
             SetupObjectShader();
-            SetupLightingShader();
-        }
-
-        private void SetupLightingShader()
-        {
         }
 
         private void SetupObjectShader()

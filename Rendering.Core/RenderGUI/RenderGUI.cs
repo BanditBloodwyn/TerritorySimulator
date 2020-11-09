@@ -135,7 +135,6 @@ namespace Rendering.Core.RenderGUI
             earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth.jpg");
             shapes.Add(earth);
-            RasterizationChanged?.Invoke(earth.Rasterization.ToString());
 
             var earthClouds = new GLSphere("earthClouds");
             earthClouds.Radius = 20.1f;

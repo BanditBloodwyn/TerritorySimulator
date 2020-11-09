@@ -28,20 +28,24 @@ uniform vec3 viewPos;
 void main()
 {
 	// Ambient
-	vec3 ambient = light.ambient * vec3(texture(material.diffuse, texCoord));
+	vec4 ambient = vec4(light.ambient, 1.0) * texture(texture0, texCoord);
 
     // Diffuse 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(vec3(light.position - FragPos));
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, texCoord));
+    vec4 diffuse = vec4(light.diffuse, 1.0) * diff * texture(texture0, texCoord);
 
     // Specular
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, texCoord));
+    vec4 specular = vec4(light.specular, 1.0) * spec * texture(texture0, texCoord);
 
-	vec3 result = ambient + diffuse + specular;    
-    FragColor = vec4(result, 1.0);
+	vec4 result = ambient + diffuse + specular;   
+	
+	if(result.a < -1)
+		discard;	
+		
+    FragColor = result;
 }

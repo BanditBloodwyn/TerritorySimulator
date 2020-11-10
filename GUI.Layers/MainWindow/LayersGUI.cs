@@ -15,8 +15,8 @@ namespace GUI.Layers.MainWindow
         {
             tvFilter.BeginUpdate();
             tvFilter.Nodes.Add("Earth Texture");
-
             tvFilter.Nodes.Add("Clouds");
+
             tvFilter.Nodes.Add("Grid");
             tvFilter.Nodes[2].Nodes.Add("Lines");
             tvFilter.Nodes[2].Nodes.Add("Color coding");
@@ -25,10 +25,10 @@ namespace GUI.Layers.MainWindow
             SetDefaults();
         }
 
-        private void SetDefaults()
+        public void SetDefaults()
         {
-            tvFilter.Nodes[0].Checked = LayerConfiguration.ShowEarthTexture;
-            tvFilter.Nodes[1].Checked = LayerConfiguration.ShowCloudTexture;
+            tvFilter.Nodes[0].Checked = true;
+            tvFilter.Nodes[1].Checked = true;
         }
 
         private void tvFilter_AfterCheck(object sender, TreeViewEventArgs e)

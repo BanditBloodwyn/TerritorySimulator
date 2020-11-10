@@ -6,8 +6,8 @@ namespace Core.Configuration
     {
         public static event EventHandler LayersChanged;
 
-        private static bool showEarthTexture = true;
-        private static bool showCloudTexture = true;
+        private static bool showEarthTexture;
+        private static bool showCloudTexture;
 
         public static bool ShowEarthTexture
         {

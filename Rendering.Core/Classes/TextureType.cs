@@ -2,8 +2,7 @@
 {
     public enum TextureType
     {
-        Visible,
-        Invisible,
+        Transparent,
         DiffuseMap,
         SpecularMap
     }

@@ -195,14 +195,14 @@ namespace Rendering.Core.Rendering
             objectShader.SetVector3("viewPos", Camera.Position);
 
             objectShader.SetInt("material.diffuse", 0);
-            objectShader.SetInt("material.specular", 0);
-            objectShader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+            objectShader.SetInt("material.specular", 1);
+            objectShader.SetVector3("material.specular", new Vector3(1.0f, 1.0f, 1.0f));
             objectShader.SetFloat("material.shininess", 32.0f);
 
             objectShader.SetVector3("light.position", new Vector3(-1000.0f, 1.0f, 0.0f));
-            objectShader.SetVector3("light.ambient", new Vector3(0.005f));
-            objectShader.SetVector3("light.diffuse", new Vector3(1.5f));
-            objectShader.SetVector3("light.specular", new Vector3(1.0f));
+            objectShader.SetVector3("light.ambient", new Vector3(0.02f));
+            objectShader.SetVector3("light.diffuse", new Vector3(1.7f));
+            objectShader.SetVector3("light.specular", new Vector3(0.5f));
 
             objectShader.SetMatrix4("view", Camera.GetViewMatrix());
             objectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
@@ -215,21 +215,28 @@ namespace Rendering.Core.Rendering
                 case "earth":
                 {
                     if (LayerConfiguration.ShowEarthTexture)
-                        shape.Textures[TextureType.Visible].Use();
+                    {
+                        shape.Textures[TextureType.DiffuseMap].Use();
+                        shape.Textures[TextureType.SpecularMap].Use();
+                    }
                     else
-                        shape.Textures[TextureType.Invisible].Use();
+                        shape.Textures[TextureType.Transparent].Use();
                     break;
                 }
                 case "earthClouds":
                 {
                     if (LayerConfiguration.ShowCloudTexture)
-                        shape.Textures[TextureType.Visible].Use();
+                    {
+                        shape.Textures[TextureType.DiffuseMap].Use();
+                        shape.Textures[TextureType.SpecularMap].Use();
+                    }
                     else
-                        shape.Textures[TextureType.Invisible].Use();
+                        shape.Textures[TextureType.Transparent].Use();
                     break;
                 }
                 default:
-                    shape.Textures[TextureType.Visible].Use();
+                    shape.Textures[TextureType.DiffuseMap].Use();
+                    shape.Textures[TextureType.SpecularMap].Use();
                     break;
             }
         }

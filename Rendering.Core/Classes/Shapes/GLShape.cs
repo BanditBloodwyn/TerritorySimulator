@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -34,13 +35,28 @@ namespace Rendering.Core.Classes.Shapes
             ResetRotation();
             ResetTranslation();
 
-            SetTexture("Resources\\Textures\\transparent.png", TextureType.Invisible);
+            SetTexture("Resources\\Textures\\transparent.png", TextureType.Transparent);
         }
 
 
-        public void SetTexture(string path, TextureType type = TextureType.Visible, TextureUnit unit = TextureUnit.Texture0)
+        public void SetTexture(string path, TextureType type)
         {
-            Texture texture = new Texture(path, unit);
+            Texture texture;
+
+            switch(type)
+            {
+                case TextureType.Transparent:
+                    texture = new Texture(path);
+                    break;
+                case TextureType.DiffuseMap:
+                    texture = new Texture(path);
+                    break;
+                case TextureType.SpecularMap:
+                    texture = new Texture(path, TextureUnit.Texture1);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
             texture.Use();
 
             Textures.Add(type, texture);

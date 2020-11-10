@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Rendering.Core.RenderGUI;
 
 namespace GUI.Main.WorldPanel
@@ -18,15 +10,8 @@ namespace GUI.Main.WorldPanel
             InitializeComponent();
 
             var renderControl = new RenderGUI();
-            renderControl.RasterizationChanged += RasterizationChanged;
             renderControl.Dock = DockStyle.Fill;
             splitContainer1.Panel2.Controls.Add(renderControl);
-        }
-
-        private bool RasterizationChanged(string rasterization)
-        {
-            label1.Text = rasterization;
-            return true;
         }
     }
 }

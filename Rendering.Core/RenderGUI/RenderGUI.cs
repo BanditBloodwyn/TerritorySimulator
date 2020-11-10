@@ -19,9 +19,6 @@ namespace Rendering.Core.RenderGUI
         private Point oldMousePosition;
         private Point newMousePosition;
 
-        public Func<string, bool> RasterizationChanged;
-
-
         public RenderGUI()
         {
             InitializeComponent();

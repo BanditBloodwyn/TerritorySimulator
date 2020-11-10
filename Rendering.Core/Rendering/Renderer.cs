@@ -202,7 +202,7 @@ namespace Rendering.Core.Rendering
 
             objectShader.SetVector3("light.position", new Vector3(-1000.0f, 1.0f, 0.0f));
             objectShader.SetVector3("light.ambient", new Vector3(0.02f));
-            objectShader.SetVector3("light.diffuse", new Vector3(1.7f));
+            objectShader.SetVector3("light.diffuse", new Vector3(2.0f));
             objectShader.SetVector3("light.specular", new Vector3(0.5f));
 
             objectShader.SetMatrix4("view", Camera.GetViewMatrix());

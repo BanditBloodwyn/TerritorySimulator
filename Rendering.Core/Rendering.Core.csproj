@@ -89,8 +89,11 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Resources\Textures\earth.jpg" />
+    <Content Include="Resources\Textures\earth_clouds.png" />
+    <Content Include="Resources\Textures\earth_diffuse.jpg" />
+    <Content Include="Resources\Textures\earth_specular.png" />
     <Content Include="Resources\Textures\milky_way.jpg" />
+    <Content Include="Resources\Textures\transparent.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

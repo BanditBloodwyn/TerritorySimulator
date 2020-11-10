@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using System;
 
+
 namespace Rendering.Core.Classes.Utilities
 {
     public class Camera

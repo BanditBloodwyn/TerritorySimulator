@@ -9,6 +9,7 @@ using Rendering.Core.Classes.Shaders;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
 
+
 namespace Rendering.Core.Rendering
 {
     public class Renderer

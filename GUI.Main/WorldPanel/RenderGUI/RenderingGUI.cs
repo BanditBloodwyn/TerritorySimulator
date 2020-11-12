@@ -1,30 +1,32 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Collections.Generic;
 using Core.Configuration;
 using OpenTK;
-using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Rendering;
+using Rendering.SceneManagement;
 
 
-namespace Rendering.Core.RenderGUI
+namespace GUI.Main.WorldPanel.RenderGUI
 {
-    public partial class RenderGUI : UserControl
+    public partial class RenderingGUI : UserControl
     {
         private GLControl glControl;
         private readonly Renderer renderer;
+        private readonly SceneManager sceneManager;
+
 
         private Point oldMousePosition;
         private Point newMousePosition;
 
-        public RenderGUI()
+        public RenderingGUI()
         {
             InitializeComponent();
             CreateGLControl();
 
             renderer = new Renderer(glControl.Width, glControl.Height);
+            sceneManager = new SceneManager();
 
             LayerConfiguration.LayersChanged += LayersChanged;
         }
@@ -65,7 +67,7 @@ namespace Rendering.Core.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
-            renderer.Initialize(CreateShapes());
+            renderer.Initialize(sceneManager.CreateShapes());
             renderer.InitializeCamera();
 
             renderer.Render();
@@ -122,35 +124,6 @@ namespace Rendering.Core.RenderGUI
         }
 
         #endregion
-
-
-        private GLShape[] CreateShapes()
-        {
-            List<GLShape> shapes = new List<GLShape>();
-
-            var earth = new GLSphere("earth");
-            earth.Radius = 20.0f;
-            earth.Rasterization = 256;
-            earth.SetTexture("Resources\\Textures\\earth_diffuse.jpg", TextureType.DiffuseMap);
-            earth.SetTexture("Resources\\Textures\\earth_specular.png", TextureType.SpecularMap);
-            shapes.Add(earth);
-
-            var earthClouds = new GLSphere("earthClouds");
-            earthClouds.Radius = 20.1f;
-            earthClouds.Rasterization = 256;
-            earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.DiffuseMap);
-            earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.SpecularMap);
-            shapes.Add(earthClouds);
-
-            var stars = new GLSphere("space");
-            stars.Radius = 8000.0f;
-            stars.Rasterization = 256;
-            stars.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.DiffuseMap);
-            stars.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.SpecularMap);
-            shapes.Add(stars);
-
-            return shapes.ToArray();
-        }
 
         private void RefreshWindow()
         {

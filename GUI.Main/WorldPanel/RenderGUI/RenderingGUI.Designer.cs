@@ -1,6 +1,6 @@
-﻿namespace Rendering.Core.RenderGUI
+﻿namespace GUI.Main.WorldPanel.RenderGUI
 {
-    partial class RenderGUI
+    partial class RenderingGUI
     {
         /// <summary> 
         /// Erforderliche Designervariable.

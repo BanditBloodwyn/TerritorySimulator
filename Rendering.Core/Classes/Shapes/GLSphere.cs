@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Rendering.Core.Classes.Shapes
 {
-    class GLSphere : GLShape
+    public class GLSphere : GLShape
     {
         private int rasterization;
         private float radius;

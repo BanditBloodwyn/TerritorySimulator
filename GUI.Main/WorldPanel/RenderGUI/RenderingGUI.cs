@@ -67,10 +67,15 @@ namespace GUI.Main.WorldPanel.RenderGUI
 
         private void GlControl_Load(object sender, EventArgs e)
         {
-            renderer.Initialize(sceneManager.CreateShapes());
+            sceneManager.SceneChanged += SceneChanged;
+            sceneManager.CreateShapes();
             renderer.InitializeCamera();
-
             renderer.Render();
+        }
+
+        private void SceneChanged(GLShape[] shapes)
+        {
+            renderer.Initialize(shapes);
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)

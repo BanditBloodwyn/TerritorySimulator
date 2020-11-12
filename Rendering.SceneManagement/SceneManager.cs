@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shapes;
 using Rendering.SceneManagement.Components.Scene;
@@ -8,6 +9,10 @@ namespace Rendering.SceneManagement
     public class SceneManager
     {
         public Scene[] Scenes { get; set; }
+
+        public GLShape[] Shapes { get; set; } //TODO: remove this when scene structure is complete
+
+        public Action<GLShape[]> SceneChanged;
 
         public SceneManager()
         {
@@ -39,8 +44,11 @@ namespace Rendering.SceneManagement
             stars.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.SpecularMap);
             shapes.Add(stars);
 
-            return shapes.ToArray();
+            Shapes = shapes.ToArray();
 
+            SceneChanged?.Invoke(shapes.ToArray());
+
+            return shapes.ToArray();
         }
     }
 }

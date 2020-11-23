@@ -3,9 +3,9 @@ using System.Windows.Forms;
 using System.Drawing;
 using Core.Configuration;
 using OpenTK;
-using Rendering.Core.Classes.Shapes;
-using Rendering.Core.Rendering;
 using Rendering.SceneManagement;
+using Rendering.SceneManagement.Components.Node;
+using Rendering.SceneManagement.SceneRenderer;
 
 
 namespace GUI.Main.WorldPanel.RenderGUI
@@ -24,9 +24,9 @@ namespace GUI.Main.WorldPanel.RenderGUI
         {
             InitializeComponent();
             CreateGLControl();
-
-            renderer = new Renderer(glControl.Width, glControl.Height);
+            
             sceneManager = new SceneManager();
+            renderer = new Renderer(glControl.Width, glControl.Height, sceneManager);
 
             LayerConfiguration.LayersChanged += LayersChanged;
         }
@@ -68,14 +68,14 @@ namespace GUI.Main.WorldPanel.RenderGUI
         private void GlControl_Load(object sender, EventArgs e)
         {
             sceneManager.SceneChanged += SceneChanged;
-            sceneManager.CreateShapes();
+            sceneManager.CreateNodes();
             renderer.InitializeCamera();
             renderer.Render();
         }
 
-        private void SceneChanged(GLShape[] shapes)
+        private void SceneChanged()
         {
-            renderer.Initialize(shapes);
+            renderer.Initialize();
         }
 
         private void GlControl_Disposed(object sender, EventArgs e)
@@ -116,16 +116,22 @@ namespace GUI.Main.WorldPanel.RenderGUI
 
         #region Controls
 
-        private
-            void btnRefresh_Click(object sender, EventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
-            foreach (GLShape shape in renderer.Shapes)
-            {
-                shape.ResetRotation();
-            }
+            ResetNodeShapeRotation(sceneManager.RootNode);
 
             renderer.ResetCamera();
             RefreshWindow();
+        }
+
+        private void ResetNodeShapeRotation(SceneNode node)
+        {
+            node.NodeShape?.ResetRotation();
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                ResetNodeShapeRotation(childNode);
+            }
         }
 
         #endregion

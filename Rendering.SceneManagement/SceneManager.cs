@@ -1,54 +1,48 @@
 ﻿using System;
-using System.Collections.Generic;
+using OpenTK;
 using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shapes;
-using Rendering.SceneManagement.Components.Scene;
+using Rendering.SceneManagement.Components.Node;
 
 namespace Rendering.SceneManagement
 {
     public class SceneManager
     {
-        public Scene[] Scenes { get; set; }
+        public SceneNode RootNode { get; set; }
 
-        public GLShape[] Shapes { get; set; } //TODO: remove this when scene structure is complete
+        public Action SceneChanged;
 
-        public Action<GLShape[]> SceneChanged;
-
-        public SceneManager()
+        public void CreateNodes()
         {
-
-        }
-
-        public GLShape[] CreateShapes()
-        {
-            List<GLShape> shapes = new List<GLShape>();
+            RootNode = new SceneNode("Root", null, Vector3.Zero, Vector3.Zero);
 
             var earth = new GLSphere("earth");
             earth.Radius = 20.0f;
             earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth_diffuse.jpg", TextureType.DiffuseMap);
             earth.SetTexture("Resources\\Textures\\earth_specular.png", TextureType.SpecularMap);
-            shapes.Add(earth);
 
             var earthClouds = new GLSphere("earthClouds");
             earthClouds.Radius = 20.1f;
             earthClouds.Rasterization = 256;
             earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.DiffuseMap);
             earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.SpecularMap);
-            shapes.Add(earthClouds);
 
-            var stars = new GLSphere("space");
-            stars.Radius = 8000.0f;
-            stars.Rasterization = 256;
-            stars.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.DiffuseMap);
-            stars.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.SpecularMap);
-            shapes.Add(stars);
+            var space = new GLSphere("space");
+            space.Radius = 8000.0f;
+            space.Rasterization = 256;
+            space.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.DiffuseMap);
+            space.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.SpecularMap);
 
-            Shapes = shapes.ToArray();
 
-            SceneChanged?.Invoke(shapes.ToArray());
+            SceneNode earthNode = new SceneNode("Earth", earth, Vector3.Zero, Vector3.Zero);
+            SceneNode cloudNode = new SceneNode("EarthClouds", earthClouds, Vector3.Zero, Vector3.Zero);
+            SceneNode spaceNode = new SceneNode("Space", space, Vector3.Zero, Vector3.Zero);
+            earthNode.AddChildNode(cloudNode);
+            spaceNode.AddChildNode(earthNode);
+            RootNode.AddChildNode(spaceNode);
 
-            return shapes.ToArray();
+            SceneChanged?.Invoke();
         }
     }
 }

@@ -6,11 +6,11 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using Rendering.Core.Classes;
 using Rendering.Core.Classes.Shaders;
-using Rendering.Core.Classes.Shapes;
 using Rendering.Core.Classes.Utilities;
+using Rendering.SceneManagement.Components.Node;
 
 
-namespace Rendering.Core.Rendering
+namespace Rendering.SceneManagement.SceneRenderer
 {
     public class Renderer
     {
@@ -18,22 +18,26 @@ namespace Rendering.Core.Rendering
         private int vertexBufferObject;
         private int elementBufferObject;
 
+        private IntPtr arrayOffset;
+        private IntPtr elementArrayOffset;
+        private IntPtr drawOffset;
+
         private float screenWidth;
         private float screenHeight;
 
         public Camera Camera { get; private set; }
-        public GLShape[] Shapes { get; private set; }
 
-        public Renderer(float screenWidth, float screenHeight)
+        public SceneManager Manager { get; set; }
+
+        public Renderer(float screenWidth, float screenHeight, SceneManager sceneManager)
         {
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
+            Manager = sceneManager;
         }
 
-        public void Initialize(GLShape[] shapeArray)
+        public void Initialize()
         {
-            Shapes = shapeArray;
-
             GL.Enable(EnableCap.DepthTest);
 
             GL.Enable(EnableCap.Blend);
@@ -41,52 +45,76 @@ namespace Rendering.Core.Rendering
 
             GL.ClearColor(0.0f, 0.0f, 0.00f, 0.0f);
 
-            InitializeBuffers(Shapes);
-            InitializeVertexArrayObject(Shapes);
+            InitializeBuffers(Manager.RootNode);
+            InitializeVertexArrayObject(Manager.RootNode);
             SetupShaders();
             BindBuffers();
         }
 
-        private void InitializeBuffers(GLShape[] shapeArray)
+        private void InitializeBuffers(SceneNode node)
         {
-            int vertexBufferSize = shapeArray.Sum(shape => shape.VertexBufferSize);
-            int indexBufferSize = shapeArray.Sum(shape => shape.IndexBufferSize);
+            int vertexBufferSize = node.GetVertexBufferSize();
+            int indexBufferSize = node.GetIndexBufferSize();
 
             // Vertex buffer
             vertexBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferObject);
             GL.BufferData(BufferTarget.ArrayBuffer, vertexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
-            IntPtr offset = (IntPtr)0;
-            foreach (GLShape shape in shapeArray)
-            {
-                GL.BufferSubData(BufferTarget.ArrayBuffer, offset, shape.VertexBufferSize, shape.Vertices);
-                offset += shape.VertexBufferSize;
-            }
+            arrayOffset = (IntPtr)0;
+            ArrayBufferSubData(node);
 
             // Element buffer
             elementBufferObject = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, elementBufferObject);
             GL.BufferData(BufferTarget.ElementArrayBuffer, indexBufferSize, (IntPtr)0, BufferUsageHint.StaticDraw);
 
-            offset = (IntPtr)0;
-            uint firstVertexIndex = 0;
-            foreach (GLShape shape in shapeArray)
-            {
-                var indexArray = shape.Indices.Select(index => index + firstVertexIndex).ToArray();
+            elementArrayOffset = (IntPtr)0;
+            ElementArrayBufferSubData(node, 0);
+        }
 
-                GL.BufferSubData(BufferTarget.ElementArrayBuffer, offset, shape.IndexBufferSize, indexArray);
-                offset += shape.IndexBufferSize;
-                firstVertexIndex += (uint)(shape.VertexBufferSize / (8 * sizeof(float)));
+        private void ArrayBufferSubData(SceneNode node)
+        {
+            if (node.NodeShape != null)
+            {
+                GL.BufferSubData(BufferTarget.ArrayBuffer, arrayOffset, node.NodeShape.VertexBufferSize, node.NodeShape.Vertices);
+                arrayOffset += node.NodeShape.VertexBufferSize;
+            }
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                ArrayBufferSubData(childNode);
             }
         }
 
-        private void InitializeVertexArrayObject(GLShape[] shapeArray)
+        private void ElementArrayBufferSubData(SceneNode node, uint firstVertexIndex)
         {
-            foreach (GLShape shape in shapeArray)
+            if (node.NodeShape != null)
             {
-                shape.VertexArrayObject = GL.GenVertexArray();
-                GL.BindVertexArray(shape.VertexArrayObject);
+                uint[] indexArray = node.NodeShape.Indices.Select(index => index + firstVertexIndex).ToArray();
+
+                GL.BufferSubData(BufferTarget.ElementArrayBuffer, elementArrayOffset, node.NodeShape.IndexBufferSize, indexArray);
+                elementArrayOffset += node.NodeShape.IndexBufferSize;
+                firstVertexIndex += (uint) (node.NodeShape.VertexBufferSize / (8 * sizeof(float)));
+            }
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                ElementArrayBufferSubData(childNode, firstVertexIndex);
+            }
+        }
+
+        private void InitializeVertexArrayObject(SceneNode node)
+        {
+            if (node.NodeShape != null)
+            {
+                node.NodeShape.VertexArrayObject = GL.GenVertexArray();
+                GL.BindVertexArray(node.NodeShape.VertexArrayObject);
+            }
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                InitializeVertexArrayObject(childNode);
             }
         }
 
@@ -174,22 +202,14 @@ namespace Rendering.Core.Rendering
 
         public void Render()
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            if (Shapes == null || Shapes.Length == 0)
+            if (Manager.RootNode == null)
                 return;
 
-            IntPtr offset = (IntPtr)0;
-            foreach (GLShape shape in Shapes)
-            {
-                ApplyTextures(shape);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                ApplyModelTransforms(shape, out Matrix4 model);
-                objectShader.SetMatrix4("model", model);
+            drawOffset = (IntPtr)0;
 
-                GL.DrawElements(PrimitiveType.Triangles, shape.Indices.Length, DrawElementsType.UnsignedInt, offset);
-                offset += shape.IndexBufferSize;
-            }
+            DrawNode(Manager.RootNode);
 
             objectShader.Use();
 
@@ -209,46 +229,66 @@ namespace Rendering.Core.Rendering
             objectShader.SetMatrix4("projection", Camera.GetProjectionMatrix());
         }
 
-        private void ApplyTextures(GLShape shape)
+        private void DrawNode(SceneNode node)
         {
-            switch (shape.Name)
+            if (node.NodeShape != null)
+            {
+                ApplyTextures(node);
+
+                ApplyModelTransforms(node, out Matrix4 model);
+                objectShader.SetMatrix4("model", model);
+
+                GL.DrawElements(PrimitiveType.Triangles, node.NodeShape.Indices.Length, DrawElementsType.UnsignedInt,
+                    drawOffset);
+                drawOffset += node.NodeShape.IndexBufferSize;
+            }
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                DrawNode(childNode);
+            }
+        }
+
+        private void ApplyTextures(SceneNode node)
+        {
+            switch (node.NodeShape.Name)
             {
                 case "earth":
-                {
-                    if (LayerConfiguration.ShowEarthTexture)
                     {
-                        shape.Textures[TextureType.DiffuseMap].Use();
-                        shape.Textures[TextureType.SpecularMap].Use();
+                        if (LayerConfiguration.ShowEarthTexture)
+                        {
+                            node.NodeShape.Textures[TextureType.DiffuseMap].Use();
+                            node.NodeShape.Textures[TextureType.SpecularMap].Use();
+                        }
+                        else
+                            node.NodeShape.Textures[TextureType.Transparent].Use();
+                        break;
                     }
-                    else
-                        shape.Textures[TextureType.Transparent].Use();
-                    break;
-                }
                 case "earthClouds":
-                {
-                    if (LayerConfiguration.ShowCloudTexture)
                     {
-                        shape.Textures[TextureType.DiffuseMap].Use();
-                        shape.Textures[TextureType.SpecularMap].Use();
+                        if (LayerConfiguration.ShowCloudTexture)
+                        {
+                            node.NodeShape.Textures[TextureType.DiffuseMap].Use();
+                            node.NodeShape.Textures[TextureType.SpecularMap].Use();
+                        }
+                        else
+                            node.NodeShape.Textures[TextureType.Transparent].Use();
+                        break;
                     }
-                    else
-                        shape.Textures[TextureType.Transparent].Use();
-                    break;
-                }
                 default:
-                    shape.Textures[TextureType.DiffuseMap].Use();
-                    shape.Textures[TextureType.SpecularMap].Use();
+                    node.NodeShape.Textures[TextureType.DiffuseMap].Use();
+                    node.NodeShape.Textures[TextureType.SpecularMap].Use();
                     break;
             }
         }
 
-        private void ApplyModelTransforms(GLShape shape, out Matrix4 model)
+        private void ApplyModelTransforms(SceneNode node, out Matrix4 model)
         {
             model = Matrix4.Identity;
-            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(shape.AngleX));
-            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(shape.AngleY));
-            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(shape.AngleZ));
-            model *= Matrix4.CreateTranslation(shape.PositionX, shape.PositionY, shape.PositionZ);
+            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(node.NodeShape.AngleX));
+            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(node.NodeShape.AngleY));
+            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(node.NodeShape.AngleZ));
+            model *= Matrix4.CreateTranslation(node.NodeShape.PositionX, node.NodeShape.PositionY, node.NodeShape.PositionZ);
         }
 
         public void Dispose()
@@ -259,14 +299,23 @@ namespace Rendering.Core.Rendering
             GL.UseProgram(0);
 
             GL.DeleteBuffer(vertexBufferObject);
+            GL.DeleteBuffer(elementBufferObject);
 
-            foreach (GLShape shape in Shapes)
-            {
-                GL.DeleteVertexArray(shape.VertexArrayObject);
-            }
+            DisposeVertexArray(Manager.RootNode);
 
             GL.DeleteProgram(objectShader.Handle);
             objectShader.Dispose();
+        }
+
+        private void DisposeVertexArray(SceneNode node)
+        {
+            if(node.NodeShape != null) 
+                GL.DeleteVertexArray(node.NodeShape.VertexArrayObject);
+
+            foreach (SceneNode childNode in node.ChildNodes)
+            {
+                DisposeVertexArray(childNode);
+            }
         }
     }
 }

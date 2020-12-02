@@ -106,10 +106,5 @@ namespace Rendering.SceneManagement.Components.Node
 
             return indexBufferSizeBuffer;
         }
-
-        public void ResetRotation()
-        {
-            RotateTo(0, 0, 0);
-        }
     }
 }

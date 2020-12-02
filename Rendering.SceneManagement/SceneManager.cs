@@ -35,7 +35,7 @@ namespace Rendering.SceneManagement
             space.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.SpecularMap);
 
 
-            SceneNode earthNode = new SceneNode("Earth", earth, Vector3.Zero, Vector3.Zero);
+            SceneNode earthNode = new SceneNode("Earth", earth, Vector3.Zero, new Vector3(90, 0, 0));
             SceneNode cloudNode = new SceneNode("EarthClouds", earthClouds, Vector3.Zero, Vector3.Zero);
             SceneNode spaceNode = new SceneNode("Space", space, Vector3.Zero, Vector3.Zero);
             earthNode.AddChildNode(cloudNode);

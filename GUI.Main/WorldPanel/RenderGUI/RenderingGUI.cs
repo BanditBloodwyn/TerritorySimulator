@@ -4,7 +4,6 @@ using System.Drawing;
 using Core.Configuration;
 using OpenTK;
 using Rendering.SceneManagement;
-using Rendering.SceneManagement.Components.Node;
 using Rendering.SceneManagement.SceneRenderer;
 
 
@@ -118,20 +117,8 @@ namespace GUI.Main.WorldPanel.RenderGUI
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            ResetNodeShapeRotation(sceneManager.RootNode);
-
             renderer.ResetCamera();
             RefreshWindow();
-        }
-
-        private void ResetNodeShapeRotation(SceneNode node)
-        {
-            node.ResetRotation();
-
-            foreach (SceneNode childNode in node.ChildNodes)
-            {
-                ResetNodeShapeRotation(childNode);
-            }
         }
 
         #endregion

@@ -24,10 +24,10 @@ namespace Rendering.Core.Classes.Shaders
                 FragmentShaderSource = reader.ReadToEnd();
 
             // generate shaders
-            var VertexShader = GL.CreateShader(ShaderType.VertexShader);
+            int VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
 
-            var FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+            int FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(FragmentShader, FragmentShaderSource);
 
             // compile shaders

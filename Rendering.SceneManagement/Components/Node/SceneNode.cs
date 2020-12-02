@@ -45,6 +45,42 @@ namespace Rendering.SceneManagement.Components.Node
             ChildNodes = childList.ToArray();
         }
 
+        public void Rotate(float deltaX, float deltaY, float deltaZ)
+        {
+            Matrix4 model = Matrix4.Identity;
+            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(deltaX));
+            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(deltaY));
+            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(deltaZ));
+
+            WorldTransform *= model;
+        }
+
+        public void RotateTo(float x, float y, float z)
+        {
+            Matrix4 model = Matrix4.Identity;
+            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(x));
+            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(y));
+            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(z));
+
+            WorldTransform = model;
+        }
+
+        public void Translate(float deltaX, float deltaY, float deltaZ)
+        {
+            Matrix4 model = Matrix4.Identity;
+            model *= Matrix4.CreateTranslation(deltaX, deltaY, deltaZ);
+
+            WorldTransform *= model;
+        }
+
+        public void TranslateTo(float x, float y, float z)
+        {
+            Matrix4 model = Matrix4.Identity;
+            model *= Matrix4.CreateTranslation(x, y, z);
+
+            WorldTransform = model;
+        }
+
         public int GetVertexBufferSize()
         {
             if (NodeShape != null)
@@ -69,6 +105,11 @@ namespace Rendering.SceneManagement.Components.Node
             }
 
             return indexBufferSizeBuffer;
+        }
+
+        public void ResetRotation()
+        {
+            RotateTo(0, 0, 0);
         }
     }
 }

@@ -126,7 +126,7 @@ namespace GUI.Main.WorldPanel.RenderGUI
 
         private void ResetNodeShapeRotation(SceneNode node)
         {
-            node.NodeShape?.ResetRotation();
+            node.ResetRotation();
 
             foreach (SceneNode childNode in node.ChildNodes)
             {

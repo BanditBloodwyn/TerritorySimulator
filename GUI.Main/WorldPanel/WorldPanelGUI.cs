@@ -9,7 +9,7 @@ namespace GUI.Main.WorldPanel
         {
             InitializeComponent();
 
-            var renderControl = new RenderingGUI();
+            RenderingGUI renderControl = new RenderingGUI();
             renderControl.Dock = DockStyle.Fill;
             splitContainer1.Panel2.Controls.Add(renderControl);
         }

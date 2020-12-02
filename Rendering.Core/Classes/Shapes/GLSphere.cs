@@ -91,7 +91,7 @@ namespace Rendering.Core.Classes.Shapes
                         indices.Add(k1 + 1);
                     }
 
-                    if (i != (rasterization - 1))
+                    if (i != rasterization - 1)
                     {
                         indices.Add(k1 + 1);
                         indices.Add(k2);

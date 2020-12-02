@@ -1,4 +1,4 @@
-﻿namespace TerritorySimulator.Core.Start
+﻿namespace TerritorySimulator
 {
     partial class MainForm
     {

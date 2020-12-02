@@ -16,19 +16,19 @@ namespace Rendering.SceneManagement
         {
             RootNode = new SceneNode("Root", null, Vector3.Zero, Vector3.Zero);
 
-            var earth = new GLSphere("earth");
+            GLSphere earth = new GLSphere("earth");
             earth.Radius = 20.0f;
             earth.Rasterization = 256;
             earth.SetTexture("Resources\\Textures\\earth_diffuse.jpg", TextureType.DiffuseMap);
             earth.SetTexture("Resources\\Textures\\earth_specular.png", TextureType.SpecularMap);
 
-            var earthClouds = new GLSphere("earthClouds");
+            GLSphere earthClouds = new GLSphere("earthClouds");
             earthClouds.Radius = 20.1f;
             earthClouds.Rasterization = 256;
             earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.DiffuseMap);
             earthClouds.SetTexture("Resources\\Textures\\earth_clouds.png", TextureType.SpecularMap);
 
-            var space = new GLSphere("space");
+            GLSphere space = new GLSphere("space");
             space.Radius = 8000.0f;
             space.Rasterization = 256;
             space.SetTexture("Resources\\Textures\\milky_way.jpg", TextureType.DiffuseMap);

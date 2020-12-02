@@ -283,12 +283,24 @@ namespace Rendering.SceneManagement.SceneRenderer
         }
 
         private void ApplyModelTransforms(SceneNode node, out Matrix4 model)
+        { 
+            model = CreateModelTransform(node);
+
+            if (node.ParentNode != null)
+            {
+                ApplyModelTransforms(node.ParentNode, out Matrix4 childModel);
+                model *= childModel;
+            }
+        }
+
+        private Matrix4 CreateModelTransform(SceneNode node)
         {
-            model = Matrix4.Identity;
-            model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(node.NodeShape.AngleX));
-            model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(node.NodeShape.AngleY));
-            model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(node.NodeShape.AngleZ));
-            model *= Matrix4.CreateTranslation(node.NodeShape.PositionX, node.NodeShape.PositionY, node.NodeShape.PositionZ);
+            Matrix4 model = Matrix4.Identity;
+
+            if(node.NodeShape != null)
+                model *= node.WorldTransform;
+
+            return model;
         }
 
         public void Dispose()
